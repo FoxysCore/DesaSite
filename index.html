@@ -1,0 +1,270 @@
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>project DESA v 0_0_ALPHA</title>
+  <link rel="stylesheet" href="style/servers.css"/>
+  <link rel="stylesheet" href="style/channels.css"/>
+  <link rel="stylesheet" href="style/chat.css"/>
+  <link rel="stylesheet" href="style/messageInputField.css"/>
+  <link rel="stylesheet" href="style/settings.css"/>
+  <style>
+    :root {
+      --color-primary: #7b68ee;
+      --color-secondary: #ff6b6b;
+      --color-accent: #4ecdc4;
+      --color-highlight: #ff9ff3;
+      --color-bg: rgba(25, 25, 35, 0.7);
+      --color-text: #ffffff;
+      --color-muted: #b9bbbe;
+      --border-radius: 12px;
+      --blur: 12px;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      --border-width: 2px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      background-color: #1a1a2e;
+      color: var(--color-text);
+      overflow: hidden;
+      backdrop-filter: blur(var(--blur));
+    }
+  </style>
+</head>
+<body>
+  <div class="servers-panel">
+    <div class="server-separator"></div>
+    <div class="servers-list">
+      <div class="server-icon" data-server="server1" style="display: none;">S1</div>
+      <div class="server-icon" data-server="server2" style="display: none;">S2</div>
+    </div>
+  </div>
+
+  <div class="channels-panel" id="channelsPanel">
+    <div class="server-info" id="serverInfo">
+      <h3>Мой сервер</h3>
+    </div>
+
+    <div class="channel-list" id="channelList">
+      <div class="channel-item TEXT active">
+        <span>общий</span>
+        <button class="edit-btn">✏️</button>
+      </div>
+      <div class="channel-item VOICE">
+        <span>Музыка</span>
+        <button class="edit-btn">✏️</button>
+      </div>
+      <div class="channel-item CATEGORY">
+        <div class="category-header">
+          <span>Игры</span>
+          <button class="edit-btn">✏️</button>
+        </div>
+        <div class="category-children">
+          <div class="channel-item TEXT child">
+            <span>cs2</span>
+            <button class="edit-btn">✏️</button>
+          </div>
+          <div class="channel-item VOICE child">
+            <span>Голосовой-игры</span>
+            <button class="edit-btn">✏️</button>
+          </div>
+          <!-- ВЛОЖЕННАЯ КАТЕГОРИЯ -->
+          <div class="channel-item CATEGORY child">
+            <div class="category-header">
+              <span>Киберспорт</span>
+              <button class="edit-btn">✏️</button>
+            </div>
+            <div class="category-children">
+              <div class="channel-item TEXT child child">
+                <span>dota2</span>
+                <button class="edit-btn">✏️</button>
+              </div>
+              <div class="channel-item VOICE child child">
+                <span>Турнирный</span>
+                <button class="edit-btn">✏️</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="toggle-channels" id="toggleChannelsBtn">◀</button>
+  </div>
+
+  <div class="chat-container">
+    <div class="chat-header" id="chatHeader"># общий</div>
+    <div class="messages-area" id="messagesArea">
+      <!-- Сообщения будут добавляться здесь динамически -->
+    </div>
+    <div class="message-input-container" id="messageInputContainer">
+      <button class="attach-btn" id="attachBtn">+</button>
+      <textarea class="message-input-field" placeholder="Сообщение #общий" id="messageInput" rows="1"></textarea>
+      <button class="send-btn" id="sendBtn">➤</button>
+    </div>
+  </div>
+
+  <div class="user-profile" id="userProfile">
+    <button class="profile-close" id="closeProfile">&times;</button>
+    <div class="profile-avatar"></div>
+    <div class="profile-name">User</div>
+    <div class="profile-tag">User#1234</div>
+    <div class="profile-section">
+      <h4>О пользователе</h4>
+      <p>Здесь может быть биография или статус.</p>
+    </div>
+    <div class="profile-section">
+      <h4>Роли</h4>
+      <p>Участник</p>
+    </div>
+    <div class="profile-section">
+      <h4>Присоединился</h4>
+      <p>3 декабря 2025 г.</p>
+    </div>
+  </div>
+
+
+
+
+  <script type="module">
+    import { Core } from "./core/core.js";
+    import { postAuthDataSend } from "./core/auth/auth.js";
+    const core = new Core();
+
+    core.addGuild("desatest.duckdns.org", 2370);
+
+
+
+    const serversList = document.querySelector('.servers-list');
+    const channelsPanel = document.getElementById('channelsPanel');
+    const toggleBtn = document.getElementById('toggleChannelsBtn');
+    const messagesArea = document.getElementById('messagesArea');
+    const messageInputContainer = document.getElementById('messageInputContainer');
+    const messageInput = document.getElementById('messageInput');
+    const attachBtn = document.getElementById('attachBtn');
+    const sendBtn = document.getElementById('sendBtn');
+    const channelList = document.getElementById('channelList');
+    const userProfile = document.getElementById('userProfile');
+    const closeProfileBtn = document.getElementById('closeProfile');
+
+    toggleBtn.addEventListener('click', () => {
+      channelsPanel.classList.toggle('collapsed');
+      toggleBtn.textContent = channelsPanel.classList.contains('collapsed') ? '▶' : '◀';
+    });
+
+
+
+    document.getElementById('chatHeader').addEventListener('click', () => {
+      const guild = core.getSelectedGuild();
+      if (!guild || guild == core.getHomeGuild()) {return;}
+
+      let channel = guild.channelManager.getSelectedChannel();
+      if (!channel) {return;}
+      channel = channel.getParent();
+      while (channel != guild.channelManager.getRootCategory()) {
+        channel.open();
+        channel = channel.getParent();
+      }
+    });
+
+
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.edit-btn')) {
+        e.stopPropagation();
+        const btn = e.target.closest('.edit-btn');
+        let container = btn.closest('.server-info, .channel-item');
+        let name = container.classList.contains('server-info') 
+          ? container.querySelector('h3').textContent 
+          : container.querySelector('span').textContent;
+        alert(`Редактирование: ${name}`);
+      }
+    });
+
+    messagesArea.addEventListener('click', (e) => {
+      if (e.target.closest('.message')) {
+        userProfile.classList.add('open');
+      }
+    });
+
+    closeProfileBtn.addEventListener('click', () => {
+      userProfile.classList.remove('open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (userProfile.classList.contains('open') && 
+          !userProfile.contains(e.target) && 
+          !e.target.closest('.message')) {
+        userProfile.classList.remove('open');
+      }
+    });
+
+    messageInput.addEventListener('input', () => {
+      attachBtn.classList.toggle('hidden', messageInput.value.trim() !== '');
+    });
+
+    sendBtn.addEventListener('click', () => {
+      const text = messageInput.value.trim();
+      if (text) {
+        
+        try {
+          core.getSelectedGuild().channelManager.getSelectedChannel().processMessage(text);
+        } catch (error) {
+          console.error("Ошибка при отправке сообщения:", error);
+        }
+
+        messageInput.value = '';
+        attachBtn.classList.remove('hidden');
+        messageInput.style.height = 'auto';
+      }
+    });
+
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+
+    messageInput.addEventListener('input', () => {
+      messageInput.style.height = 'auto';
+      messageInput.style.height = Math.min(messageInput.scrollHeight, 100) + 'px';
+    });
+
+
+
+
+
+
+
+
+
+
+
+    // Обработка сообщений из callback.html
+    window.addEventListener('message', async (event) => {
+      console.log(event);
+      if (event.origin !== window.origin) console.warn("Недопустимый origin:", event.origin, window.origin);
+
+      if (event.data.type === 'GOOGLE_AUTH_CODE') {
+        const { serverId, code } = event.data;
+        console.log(`Получен код авторизации для сервера ${serverId}: ${code}`);
+        postAuthDataSend(
+          core.getGuildById(serverId),
+          "defaultGoogleAuthMethod",
+          code
+        );
+      }
+    });
+
+  </script>
+</body>
+</html>

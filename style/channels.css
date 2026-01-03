@@ -1,0 +1,170 @@
+.channels-panel {
+      background: var(--color-bg);
+      display: flex;
+      flex-direction: column;
+      transition: width 0.3s ease;
+      position: relative;
+      border-right: var(--border-width) solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(var(--blur));
+      box-shadow: var(--shadow);
+      width: 240px;
+    }
+
+.channels-panel.collapsed { 
+    width: 60px !important; 
+}
+
+.channels-panel.collapsed .channel-item span,
+.channels-panel.collapsed .server-info h3,
+.channels-panel.collapsed .server-info p {
+    display: none !important;
+}
+
+
+
+.channels-panel.collapsed .server-info {
+    height: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+}
+
+.channel-list {
+    padding: 4px 0;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.channel-item {
+    padding: 8px 16px;
+    color: var(--color-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    white-space: nowrap;
+    border-radius: var(--border-radius);
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    border: var(--border-width) solid transparent;
+    position: relative;
+}
+
+.channel-item.CATEGORY {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.channel-item.CATEGORY > .category-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    padding-right: 30px;
+}
+
+.channel-item::before {
+    font-size: 18px;
+    width: 18px;
+    text-align: center;
+}
+
+.channel-item.TEXT::before { content: "#"; }
+.channel-item.VOICE::before { content: "🔊"; }
+
+/* Иконка категории: по умолчанию ▶, при открытии → ▼ */
+.category-header::before {
+    content: "▼";
+    font-size: 18px;
+    width: 18px;
+    text-align: center;
+    display: inline-block;
+    transition: transform 0.2s;
+}
+
+/* Если категория НЕ свёрнута — поворачиваем треугольник */
+.channel-item.CATEGORY.closed .category-header::before {
+    transform: rotate(-90deg);
+}
+
+.channel-item:hover {
+    background: rgba(123, 104, 238, 0.1);
+    color: var(--color-text);
+    border: var(--border-width) solid rgba(123, 104, 238, 0.4);
+}
+
+.channel-item.active:not(.CATEGORY) {
+    color: var(--color-text);
+    background: rgba(123, 104, 238, 0.2);
+    border: var(--border-width) solid rgba(123, 104, 238, 0.6);
+}
+
+/* === Контейнер для дочерних элементов === */
+.category-children {
+    /* По умолчанию — отображается */
+    display: block;
+    width: 100%;
+}
+
+/* Скрыть, если есть класс closed */
+.channel-item.CATEGORY.closed .category-children {
+    display: none;
+}
+
+/* === Кнопка редактирования === */
+.edit-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(123, 104, 238, 0.2);
+    color: var(--color-primary);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s;
+    pointer-events: none;
+}
+
+.channel-item:not(.CATEGORY):not(.child):hover .edit-btn,
+.channel-item.child:hover .edit-btn,
+.channel-item.CATEGORY:hover > .category-header .edit-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.edit-btn:hover {
+    background: rgba(123, 104, 238, 0.3);
+    color: var(--color-text);
+}
+
+.toggle-channels {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    background: rgba(25, 25, 35, 0.7);
+    border: var(--border-width) solid rgba(255, 255, 255, 0.05);
+    color: var(--color-muted);
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+}
+
+.toggle-channels:hover {
+    background: rgba(123, 104, 238, 0.1);
+    color: var(--color-text);
+}

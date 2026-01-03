@@ -1,0 +1,154 @@
+.message-input-container {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    right: 30px;
+    display: flex;
+    gap: 12px;
+    background: rgba(25, 25, 35, 0.7);
+    border: var(--border-width) solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius);
+    padding: 8px 12px;
+    box-shadow: var(--shadow);
+    align-items: center;
+    z-index: 5;
+    backdrop-filter: blur(var(--blur));
+}
+
+.attach-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(25, 25, 35, 0.7);
+    border: var(--border-width) solid rgba(255, 255, 255, 0.05);
+    color: var(--color-muted);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s, color 0.2s;
+}
+
+.attach-btn:hover {
+    background: rgba(123, 104, 238, 0.1);
+    color: var(--color-text);
+}
+
+.attach-btn.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.message-input-field {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--color-text);
+    font-size: 14px;
+    outline: none;
+    max-height: 100px;
+    resize: none;
+    padding: 4px 0;
+}
+
+.message-input-field::placeholder {
+    color: var(--color-muted);
+}
+
+.send-btn {
+    background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    transition: filter 0.2s;
+}
+
+.send-btn:hover {
+    filter: brightness(1.1);
+}
+
+.user-profile {
+    position: absolute;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100%;
+    background: var(--color-bg);
+    border-left: var(--border-width) solid rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    transition: right 0.3s ease;
+    z-index: 20;
+    overflow-y: auto;
+    backdrop-filter: blur(var(--blur));
+    box-shadow: var(--shadow);
+}
+
+.user-profile.open {
+    right: 0;
+}
+
+.profile-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(25, 25, 35, 0.7);
+    border: var(--border-width) solid rgba(255, 255, 255, 0.05);
+    color: var(--color-muted);
+    font-size: 20px;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+}
+
+.profile-close:hover {
+    background: rgba(123, 104, 238, 0.1);
+    color: var(--color-text);
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+    margin-bottom: 16px;
+}
+
+.profile-name {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: var(--color-text);
+}
+
+.profile-tag {
+    color: var(--color-muted);
+    margin-bottom: 16px;
+}
+
+.profile-section {
+    margin-bottom: 16px;
+}
+
+.profile-section h4 {
+    color: var(--color-text);
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.profile-section p {
+    color: var(--color-muted);
+    font-size: 14px;
+}

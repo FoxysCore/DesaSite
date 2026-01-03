@@ -1,0 +1,27 @@
+<!-- callback.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Авторизация...</title>
+</head>
+<body>
+  <p>Подождите, идёт авторизация...</p>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+
+    if (code && state) {
+      try {
+        window.opener?.postMessage(
+          { type: 'GOOGLE_AUTH_CODE', serverId: state, code },
+          'https://foxyscore.github.io/DesaSite/'
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    setTimeout(() => window.close(), 1000);
+  </script>
+</body>
+</html>
