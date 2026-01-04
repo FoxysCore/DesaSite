@@ -1,43 +1,42 @@
 .servers-panel {
-    width: 72px;
+    width: var(--servers-width);
     background: var(--color-bg);
     border-right: var(--border-width) solid rgba(255, 255, 255, 0.05);
-    box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 16px 0;
-    z-index: 10;
+    padding: 1rem 0;
+    z-index: 30;
     backdrop-filter: blur(var(--blur));
+    flex-shrink: 0;
+}
+
+
+.server-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #2f3136;
 }
 
 .server-separator {
-    width: 32px;
+    width: 2rem;
     height: 1px;
-    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
-    margin: 16px 0;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 1rem 0;
 }
 
 .servers-list {
     display: flex;
     flex-direction: column;
     gap: 24px;
-}
-
-.server-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 20px;
-    cursor: pointer;
-    transition: transform 0.2s, filter 0.2s;
-    color: var(--color-text);
-    background: #2f3136;
-    position: relative;
 }
 
 
@@ -120,4 +119,13 @@
     border-radius: var(--border-radius) var(--border-radius) 0 0;
     position: relative;
     cursor: pointer;
+}
+
+
+
+@media (max-width: 768px) {
+    .servers-panel.collapsed {
+        width: 0 !important;
+        overflow: hidden;
+    }
 }

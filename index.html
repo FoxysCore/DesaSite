@@ -10,38 +10,42 @@
   <link rel="stylesheet" href="style/settings.css"/>
   <style>
     :root {
-      --color-primary: #7b68ee;
-      --color-secondary: #ff6b6b;
-      --color-accent: #4ecdc4;
-      --color-highlight: #ff9ff3;
-      --color-bg: rgba(25, 25, 35, 0.7);
-      --color-text: #ffffff;
-      --color-muted: #b9bbbe;
-      --border-radius: 12px;
-      --blur: 12px;
-      --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-      --border-width: 2px;
-    }
+  /* ... ваши цвета ... */
+  --color-primary: #7b68ee;
+  --color-secondary: #ff6b6b;
+  --color-accent: #4ecdc4;
+  --color-highlight: #ff9ff3;
+  --color-bg: rgba(25, 25, 35, 0.7);
+  --color-text: #ffffff;
+  --color-muted: #b9bbbe;
+  --border-radius: 0.75rem; /* 12px -> 0.75rem */
+  --blur: 12px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  --border-width: 2px;
+  
+  /* Новые переменные для адаптации */
+  --servers-width: 4.5rem; /* 72px */
+  --channels-width: 15rem; /* 240px */
+}
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
 
-    body {
-      display: flex;
-      height: 100vh;
-      background-color: #1a1a2e;
-      color: var(--color-text);
-      overflow: hidden;
-      backdrop-filter: blur(var(--blur));
-    }
+body {
+  display: flex;
+  height: 100dvh; /* Динамическая высота для мобильных */
+  background-color: #1a1a2e;
+  color: var(--color-text);
+  overflow: hidden;
+}
   </style>
 </head>
 <body>
-  <div class="servers-panel">
+  <div class="servers-panel" id="serversPanel">
     <div class="server-separator"></div>
     <div class="servers-list">
       <div class="server-icon" data-server="server1" style="display: none;">S1</div>
@@ -158,12 +162,16 @@
 
     toggleBtn.addEventListener('click', () => {
       channelsPanel.classList.toggle('collapsed');
+      document.getElementById('serversPanel').classList.toggle('collapsed');
       toggleBtn.textContent = channelsPanel.classList.contains('collapsed') ? '▶' : '◀';
     });
 
 
 
     document.getElementById('chatHeader').addEventListener('click', () => {
+      if (channelsPanel.classList.contains('collapsed')) {
+        toggleBtn.click();
+      }
       const guild = core.getSelectedGuild();
       if (!guild || guild == core.getHomeGuild()) {return;}
 
@@ -174,6 +182,7 @@
         channel.open();
         channel = channel.getParent();
       }
+
     });
 
 

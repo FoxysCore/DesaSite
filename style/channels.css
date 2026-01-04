@@ -1,14 +1,15 @@
 .channels-panel {
-      background: var(--color-bg);
-      display: flex;
-      flex-direction: column;
-      transition: width 0.3s ease;
-      position: relative;
-      border-right: var(--border-width) solid rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(var(--blur));
-      box-shadow: var(--shadow);
-      width: 240px;
-    }
+    background: var(--color-bg);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, width 0.3s ease;
+    position: relative;
+    border-right: var(--border-width) solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(var(--blur));
+    width: var(--channels-width);
+    flex-shrink: 0;
+    z-index: 25;
+}
 
 .channels-panel.collapsed { 
     width: 60px !important; 
@@ -167,4 +168,17 @@
 .toggle-channels:hover {
     background: rgba(123, 104, 238, 0.1);
     color: var(--color-text);
+}
+
+
+
+
+
+
+
+@media (max-width: 768px) {
+    .channels-panel.collapsed {
+        overflow: hidden;
+        width: 0 !important;
+    }
 }
