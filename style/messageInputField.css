@@ -1,43 +1,41 @@
 .message-input-container {
-    position: absolute;
-    bottom: 1rem;
-    left: 1rem;
-    right: 1rem;
+    /* Flex-элемент внизу .chat-container */
+    margin: 0 1rem 1rem 1rem;
     display: flex;
     gap: 0.75rem;
-    background: rgba(25, 25, 35, 0.7);
-    border: var(--border-width) solid rgba(255, 255, 255, 0.05);
+    background: var(--color-bg-panel);
+    border: var(--border-width) solid var(--color-border);
     border-radius: var(--border-radius);
     padding: 0.5rem 0.75rem;
     box-shadow: var(--shadow);
     align-items: center;
-    z-index: 10;
     backdrop-filter: blur(var(--blur));
+    flex-shrink: 0;
 }
 
 .attach-btn {
-    width: 28px;
-    height: 28px;
-    background: rgba(25, 25, 35, 0.7);
-    border: var(--border-width) solid rgba(255, 255, 255, 0.05);
+    width: 32px;
+    height: 32px;
+    background: var(--color-bg-element);
+    border: var(--border-width) solid var(--color-border);
     color: var(--color-muted);
-    font-size: 20px;
+    font-size: 1.2rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    transition: background 0.2s, color 0.2s;
+    transition: background var(--transition-speed), color var(--transition-speed);
+    flex-shrink: 0;
 }
 
 .attach-btn:hover {
-    background: rgba(123, 104, 238, 0.1);
+    background: var(--color-bg-hover);
     color: var(--color-text);
 }
 
 .attach-btn.hidden {
-    opacity: 0;
-    pointer-events: none;
+    display: none;
 }
 
 .message-input-field {
@@ -47,10 +45,11 @@
     color: var(--color-text);
     font-size: 1rem;
     outline: none;
-    max-height: 100px;
+    max-height: 150px;
     resize: none;
-    padding: 4px 0;
+    padding: 0.25rem 0;
     min-width: 0;
+    line-height: 1.4;
 }
 
 .message-input-field::placeholder {
@@ -69,9 +68,10 @@
     justify-content: center;
     cursor: pointer;
     font-weight: bold;
-    transition: filter 0.2s;
+    transition: filter var(--transition-speed);
+    flex-shrink: 0;
 }
 
 .send-btn:hover {
-    filter: brightness(1.1);
+    filter: brightness(1.15);
 }

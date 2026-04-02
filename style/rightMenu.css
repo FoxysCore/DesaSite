@@ -1,24 +1,23 @@
 .right-menu {
-  display: block;
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 0;
-  max-width: 25rem;
-  height: 100%;
-  background: var(--color-bg);
-  border-left: var(--border-width) solid rgba(255, 255, 255, 0.05);
-  padding: 0;
-  transition: width 0.3s ease;
-  z-index: 25;
-  overflow-y: auto;
-  backdrop-filter: blur(var(--blur));
-  box-shadow: var(--shadow);
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 100%;
+    background: var(--color-bg-panel);
+    padding: 0;
+    transition: width var(--transition-speed) ease, padding var(--transition-speed) ease;
+    z-index: 40;
+    overflow-y: auto;
+    backdrop-filter: blur(var(--blur));
+    box-shadow: var(--shadow);
+    border-left: none;
 }
 
 .right-menu.open {
-  width: 100%;
-  padding: 20px;
+    width: var(--right-menu-width);
+    padding: 1.5rem;
+    border-left: var(--border-width) solid var(--color-border);
 }
 
 /* Универсальный блок */
@@ -28,9 +27,15 @@
     justify-content: center;
     margin-bottom: 1rem;
     gap: 1rem;
-    padding: 1rem 1rem;
-    background: rgba(123, 104, 238, 0.1);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    background: var(--color-bg-hover);
     border-radius: var(--border-radius);
-    border: var(--border-width) solid rgba(123, 104, 238, 0.6);
+    border: var(--border-width) solid var(--color-border-active);
+}
+
+@media (max-width: 768px) {
+    .right-menu.open {
+        max-width: calc(100% - var(--servers-width));
+        border-left: none;
+    }
 }

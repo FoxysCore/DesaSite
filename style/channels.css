@@ -1,10 +1,10 @@
 .channels-panel {
-    background: var(--color-bg);
+    background: var(--color-bg-panel);
     display: flex;
     flex-direction: column;
-    transition: transform 0.3s ease, min-width 0.3s ease, width 0.3s ease;
+    transition: transform var(--transition-speed) ease, width var(--transition-speed) ease;
     position: relative;
-    border-right: var(--border-width) solid rgba(255, 255, 255, 0.05);
+    border-right: var(--border-width) solid var(--color-border);
     backdrop-filter: blur(var(--blur));
     width: var(--channels-width);
     flex-shrink: 0;
@@ -12,9 +12,10 @@
 }
 
 .channels-panel.collapsed {
-        overflow: hidden;
-        width: 0 !important;
+    width: 0 !important;
+    border-right: none;
 }
+
 
 .channels-panel.collapsed .server-info h3,
 .channels-panel.collapsed .server-info p {
@@ -32,7 +33,7 @@
 }
 
 .channel-list {
-    padding: 4px 0;
+    padding: 0.5rem 0;
     flex: 1;
     overflow-y: auto;
 }
@@ -42,35 +43,35 @@
 }
 
 .channel-item {
-    padding: 8px 16px;
+    padding: 0.5rem 1rem;
     color: var(--color-muted);
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0.75rem;
     white-space: nowrap;
     border-radius: var(--border-radius);
-    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    transition: background var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
     border: var(--border-width) solid transparent;
-    position: relative;
+    margin: 0 0.5rem 2px 0.5rem;
 }
 
 .channel-item.CATEGORY {
     flex-direction: column;
     align-items: stretch;
+    padding: 0.3rem 1rem;
 }
 
 .channel-item.CATEGORY > .category-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    position: relative;
+    gap: 0.75rem;
     padding-right: 30px;
 }
 
 .channel-item::before {
-    font-size: 18px;
-    width: 18px;
+    font-size: 1.1rem;
+    width: 1.1rem;
     text-align: center;
 }
 
@@ -80,11 +81,11 @@
 /* Иконка категории: по умолчанию ▶, при открытии → ▼ */
 .category-header::before {
     content: "▾";
-    font-size: 18px;
-    width: 18px;
+    font-size: 1.2rem;
+    width: 1.2rem;
     text-align: center;
     display: inline-block;
-    transition: transform 0.2s;
+    transition: transform var(--transition-speed);
 }
 
 /* Если категория НЕ свёрнута — поворачиваем треугольник */
@@ -93,20 +94,18 @@
 }
 
 .channel-item:hover {
-    background: rgba(123, 104, 238, 0.1);
+    background: var(--color-bg-hover);
     color: var(--color-text);
-    border: var(--border-width) solid rgba(123, 104, 238, 0.4);
+    border: var(--border-width) solid var(--color-border-hover);
 }
 
 .channel-item.active:not(.CATEGORY) {
     color: var(--color-text);
-    background: rgba(123, 104, 238, 0.2);
-    border: var(--border-width) solid rgba(123, 104, 238, 0.6);
+    background: var(--color-bg-active);
+    border: var(--border-width) solid var(--color-border-active);
 }
 
-/* === Контейнер для дочерних элементов === */
 .category-children {
-    /* По умолчанию — отображается */
     display: block;
     width: 100%;
 }
@@ -121,4 +120,21 @@
 .channel-item.CATEGORY:hover > .category-header {
     opacity: 1;
     pointer-events: auto;
+}
+
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+    .channels-panel {
+        position: absolute;
+        left: 0;
+        height: 100%;
+        transform: translateX(-100%);
+        width: calc(80% - var(--servers-width));
+        max-width: 320px;
+    }
+    /* Добавляй класс .open через JS */
+    .channels-panel:not(.collapsed) {
+        transform: translateX(var(--servers-width));
+    }
 }

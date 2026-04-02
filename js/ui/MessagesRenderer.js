@@ -300,7 +300,9 @@ export class MessagesRenderer {
 
         switch (contentBlock.getType()) {
             case ContentBlockType.TEXT:
-                blockDiv.textContent = contentBlock.getText();
+                const textBlock = document.createElement("p");
+                textBlock.textContent = contentBlock.getText();
+                blockDiv.appendChild(textBlock);
                 break;
             // Здесь можно расширять другими типами блоков
         }

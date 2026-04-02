@@ -34,6 +34,7 @@ export class PackageRouter {
                     );   
                 }
 
+                //break;
                 const tokenMethod = this.#guild.getAuthManager().getMethod("defaultSessionTokenAuthMethod");
                 //if (!tokenMethod) {return;}
                 //tokenMethod.auth({});

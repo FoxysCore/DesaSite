@@ -18,6 +18,7 @@ export class TextContentBlock extends ContentBlock {
         return this.#text;
     }
 
+
     json() {
         return {
             ContentBlockType: ContentBlockType.TEXT,
