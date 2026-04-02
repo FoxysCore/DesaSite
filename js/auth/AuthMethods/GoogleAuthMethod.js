@@ -1,0 +1,32 @@
+import { AuthMethod } from "./AuthMethod.js";
+
+export class GoogleAuthMethod extends AuthMethod{
+    
+    getName() {
+        return "defaultGoogleAuthMethod";
+    }
+
+    getDisplayName() {
+        return "Google"
+    }
+
+    selectMethod() {
+        console.log(this._payload);
+        const state = JSON.stringify({methodName: this.getName(), guildId: this.getAuthManager().getGuild().getId()});
+        const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${this._payload.client_id}&redirect_uri=${this._payload.redirect_uri}&response_type=code&scope=openid%20email&access_type=offline&prompt=consent&state=${state}`;
+        
+        const width = 600, height = 700;
+        const left = (screen.width - width) / 2;
+        const top = (screen.height - height) / 2;
+
+        const popup = window.open(
+            url,
+            'DesaAuth',
+            `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        );
+    }
+
+    auth(payload) {
+        console.log(payload);
+    }
+}

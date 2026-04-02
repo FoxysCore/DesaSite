@@ -1,0 +1,26 @@
+.chat-container {
+    flex: 1;
+    min-width: 0; /* Важно для адаптивности текста */
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg);
+    position: relative;
+}
+
+.chat-header {
+    padding: 0.75rem 1rem;
+    border-bottom: var(--border-width) solid rgba(255, 255, 255, 0.05);
+    color: var(--color-text);
+    font-size: 1rem;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.messages-area {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+    padding-bottom: 5rem;
+}

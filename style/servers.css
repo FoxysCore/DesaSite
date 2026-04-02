@@ -1,0 +1,142 @@
+.servers-panel {
+    width: var(--servers-width);
+    background: var(--color-bg);
+    border-right: var(--border-width) solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 0;
+    z-index: 30;
+    backdrop-filter: blur(var(--blur));
+    flex-shrink: 0;
+}
+
+
+.server-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #2f3136;
+}
+
+.server-separator {
+    width: 2rem;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 1rem 0;
+}
+
+.servers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+
+.server-tooltip {
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    background: rgba(32, 34, 37, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 2000;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    pointer-events: none;
+    opacity: 0;
+    animation: fadeIn 0.2s forwards;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+.server-icon img,
+.server-icon .server-avatar-fallback {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.server-icon .server-avatar-fallback {
+    background: #36393f; /* серый кружок при ошибке */
+    display: none;
+}
+
+.server-icon img.error {
+    display: none;
+}
+
+.server-icon img.error + .server-avatar-fallback {
+    display: block;
+}
+
+.server-icon:not(.active) {
+    border: var(--border-width) solid rgba(255, 255, 255, 0.1);
+}
+
+.server-icon.active {
+    background: linear-gradient(#1a1a2e, #1a1a2e) padding-box,
+                linear-gradient(45deg, var(--color-primary), var(--color-accent)) border-box;
+    border: 5px solid transparent;
+    animation: server-switch 0.3s ease;
+}
+
+.server-icon:hover {
+    transform: scale(1.05);
+    filter: brightness(1.2);
+}
+
+.server-icon.DISCONNECTED {
+    display:none;
+}
+
+.server-icon.CONNECTED {
+    border: calc(var(--border-width)*1.5) solid rgba(228, 105, 105, 0.952);
+}
+.server-icon.server-icon.CONNECTED img{
+    filter: grayscale(0.5);
+}
+
+@keyframes server-switch {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+
+
+.server-info {
+    padding: 12px 16px;
+    background: rgba(25, 25, 35, 0.5);
+    border-bottom: var(--border-width) solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    position: relative;
+    cursor: pointer;
+}
+
+
+
+@media (max-width: 768px) {
+    .servers-panel.collapsed {
+        width: 0 !important;
+        overflow: hidden;
+    }
+}

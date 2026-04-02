@@ -1,0 +1,33 @@
+<!-- callback.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Авторизация...</title>
+</head>
+<body>
+  <p>Подождите, идёт авторизация...</p>
+  <script>
+
+    //{type: AUTH, guildId:123, authMethodName:google, payload:{...}}
+
+    const urlParams = new URLSearchParams(window.location.search);
+    for (const param of urlParams.keys()) {
+      console.log(param, urlParams.get(param));
+    }
+    const payload = {code: urlParams.get('code')};
+    const guildData = JSON.parse(urlParams.get('state'));
+    const guildId = guildData.guildId;
+    const authMethodName = guildData.methodName;
+
+    try {
+      window.opener?.postMessage(
+        {type: AUTH, guildId: guildId, authMethodName: authMethodName, payload: payload},
+        window.location.origin
+      );
+    } catch (e) {
+      console.error(e);
+    }
+    //setTimeout(() => window.close(), 1000);
+  </script>
+</body>
+</html>

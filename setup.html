@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./favicon.ico" type="image/x-icon"/>
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon"/>
+    <title>DESA Hello!</title>
+    <style>
+        :root {
+            --background-color: #1a1a2e;
+            --slide-color: rgba(123, 104, 238, 0.2);
+            --slide-border-color: rgba(123, 104, 238, 0.6);
+
+            --text-color: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Контейнер настройки */
+        .setup-container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--slide-color);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 3px solid var(--slide-border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 40px;
+            position: relative;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Слайды */
+        .slide {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            right: 40px;
+            bottom: 40px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* Контент слайда */
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        p {
+            font-size: 16px;
+            color: #818080;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        /* Поля ввода */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #808080;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--slide-border-color);
+            border-radius: 6px;
+            font-size: 16px;
+            color:#ffffff;
+            background: var(--slide-color);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box; /* Важно для padding */
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 103, 192, 0.2);
+        }
+
+        /* Навигация (кнопки) */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        button {
+            padding: 10px 24px;
+            border-radius: 6px;
+            border: 3px solid var(--slide-border-color);
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-weight: 500;
+            background: var(--slide-color);
+            color: white;
+        }
+
+        button:disabled {
+            visibility: hidden;
+        }
+
+        .endButton{
+            background: rgba(42, 87, 236, 0.596);
+        }
+
+        /* Индикатор прогресса */
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 6px;
+            background: rgba(0, 0, 0, 0);
+            width: 100%;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--slide-border-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .user-icon{
+            background: linear-gradient(#1a1a2e, #1a1a2e) padding-box,
+                var(--slide-border-color) border-box;
+            border: 8px solid transparent;
+            animation: server-switch 0.3s ease;
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+        }
+
+        .user-icon img,
+        .user-icon .server-avatar-fallback {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+
+
+    </style>
+</head>
+<body>
+
+<div class="setup-container">
+    <!-- Индикатор прогресса -->
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+
+    
+    <div class="slide active" data-step="0" data-mode="main">
+    </div>
+
+
+
+    <!-- Слайд 1: Приветствие -->
+    <div class="slide" data-step="1" data-mode="main">
+        <h1>Добро пожаловать!</h1>
+        <p>Кажется, мы ничего не знаем о Вас. Давайте настроим ваш аккаунт!<br>Или мы можем синхронизировать его с сервером!</p>
+        <div class="controls">
+            <button onclick="mode='newUser'; nextSlide();">Регистрация</button>
+            <button  onclick="mode='synchronize'; nextSlide();">Синхронизация</button>
+        </div>
+    </div>
+
+
+
+    <!-- Слайд 2: Ввод данных пользователя -->
+    <div class="slide" data-step="2" data-mode="synchronize">
+        <h1>Хорошо!</h1>
+        <p>Мы обязательно восстановим информацию о Вас с сервера!</p>
+        <div class="controls">
+            <button onclick="prevSlide();">Назад</button>
+            <button class="endButton" onclick="endWithSync();">Завершить</button>
+        </div>
+    </div>
+
+    <div class="slide" data-step="2" data-mode="newUser">
+        <h1>Учетная запись</h1>
+        <p>Как к вам обращаться?</p>
+        <div class="input-group">
+            <label for="username">Имя пользователя</label>
+            <input type="text" id="username" placeholder="DesaUser :>">
+        </div>
+        <div class="input-group">
+            <label for="userDesc">Описание</label>
+            <textarea type="email" id="userDesc" placeholder="Мне 19 лет и я люблю печеньки!"></textarea>
+        </div>
+        <div class="controls">
+            <button onclick="prevSlide();">Назад</button>
+            <button onclick="nextSlide();">Далее</button>
+        </div>
+    </div>
+
+
+
+
+    <div class="slide" data-step="3" data-mode="newUser">
+        <h1>Учетная запись</h1>
+        <p>Выберите иконку, введя её url!</p>
+
+        <div style="width: 100%; display: flex; justify-content: center;">
+            <div class="user-icon">
+                <img id="userIconImg" src="">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="iconUrl">Иконка</label>
+            <input type="text" id="iconUrl" placeholder="http://.." oninput="document.getElementById('userIconImg').src = document.getElementById('iconUrl').value">
+        </div>
+        <div class="controls">
+            <button onclick="prevSlide();">Назад</button>
+            <button onclick="nextSlide();">Далее</button>
+        </div>
+    </div>
+
+
+
+    <div class="slide" data-step="4" data-mode="newUser">
+        <h1>Учетная запись</h1>
+        <p>Выберите баннер, введя его url!</p>
+
+        <div style="width: 100%; display: flex; justify-content: center;">
+            <div class="user-icon" style="width: auto; max-width: 100%; border-radius: 3px;">
+                <img id="userBannerImg" src="" style="border-radius: 0;">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="bannerUrl">Баннер</label>
+            <input type="text" id="bannerUrl" placeholder="http://.." oninput="document.getElementById('userBannerImg').src = document.getElementById('bannerUrl').value">
+        </div>
+        <div class="controls">
+            <button onclick="prevSlide();">Назад</button>
+            <button onclick="nextSlide();">Далее</button>
+        </div>
+    </div>
+
+
+
+    <div class="slide" data-step="5" data-mode="newUser">
+        <h1>Успешно!</h1>
+        <p>Теперь мы знаем о Вас чуть больше :></p>
+        <div class="controls">
+            <button onclick="prevSlide();">Назад</button>
+            <button class="endButton" onclick="endAsNewUser();">Завершить</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Логика переключения слайдов
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+
+
+    localStorage.removeItem("currentUserInfo");
+
+
+    function updateUI() {
+        // Обновляем видимость слайдов
+        slides.forEach((slide, index) => {
+            if (index === currentSlide) {
+                slide.classList.add('active');
+            } else {
+                slide.classList.remove('active');
+            }
+        });
+
+        // Обновляем состояние кнопок
+        prevBtn.disabled = currentSlide <= 1;
+        
+        if (currentSlide === totalSlides - 1) {
+            nextBtn.textContent = "Войти";
+            nextBtn.style.backgroundColor = "#28a745"; // Зеленый для финала
+        } else {
+            nextBtn.textContent = "Далее";
+            nextBtn.style.backgroundColor = ""; // Сброс цвета
+        }
+
+        // Обновляем прогресс бар
+        const progress = ((currentSlide) / totalSlides) * 100;
+        progressFill.style.width = `${progress}%`;
+    }
+
+    // Обработчик кнопки "Далее"
+    nextBtn.addEventListener('click', () => {
+        if (currentSlide < totalSlides - 1) {
+            currentSlide++;
+            updateUI();
+        } else {
+            localStorage.setItem("currentUserInfo", 1)
+            
+        }
+    });
+
+    // Обработчик кнопки "Назад"
+    prevBtn.addEventListener('click', () => {
+        if (currentSlide > 0) {
+            currentSlide--;
+            updateUI();
+        }
+    });
+
+    // Инициализация
+    updateUI();
+    requestAnimationFrame(() => {
+        nextBtn.click();
+    })
+</script>
+
+
+
+<script>
+    localStorage.removeItem("currentUserInfo");
+
+    const progressFill = document.getElementById('progressFill');
+    let mode = "";
+    let step = 0;
+
+    function b64Encode(str) {
+        return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) =>
+            String.fromCharCode('0x' + p1)
+        ));
+    }
+
+    function nextSlide() {
+        step++;
+        for (const slide of slides) {
+            if (parseInt(slide.dataset.step) === step && (
+                slide.dataset.mode === mode ||
+                slide.dataset.mode === "main"
+            )
+        ) {
+            slide.classList.add("active");
+        }
+        else {
+            slide.classList.remove("active");
+        }
+        }
+    }
+
+
+    function prevSlide() {
+        step--;
+        for (const slide of slides) {
+            if (
+                parseInt(slide.dataset.step) === step && (
+                    slide.dataset.mode === mode ||
+                    slide.dataset.mode === "main"
+                )
+            ) {
+                slide.classList.add("active");
+            }
+            else {
+                slide.classList.remove("active");
+            }
+        }
+    }
+
+
+    function setProgressbarPercent() {
+
+    }
+
+    function endAsNewUser() {
+        const displayName = document.getElementById("username").value;
+        const description = document.getElementById("userDesc").value;
+        const iconUrl = document.getElementById("iconUrl").value;
+        const bannerUrl = document.getElementById("bannerUrl").value;
+
+        const userData = {
+            b64DisplayName: b64Encode(displayName),
+            b64Description: b64Encode(description),
+            b64IconUrl: b64Encode(iconUrl),
+            b64BannerUrl: b64Encode(bannerUrl),
+            updateTimeStamp: Date.now()
+        }
+
+        localStorage.setItem("currentUserInfo", JSON.stringify(userData));
+        window.location.replace("/");
+    }
+
+    function endWithSync() {
+        const userData = {
+            b64DisplayName: "TmV3RGVzYVVzZXI=",
+            b64Description: "UGxlYXNlLCB1cGRhdGUgeW91ciBwcm9maWxlIDop",
+            b64IconUrl: "Li9mYXZpY29uLmljbw==",
+            b64BannerUrl: "Li9mYXZpY29uLmljbw==",
+            updateTimeStamp: 1
+        }
+        localStorage.setItem("currentUserInfo", JSON.stringify(userData));
+        
+        window.location.replace("/");
+    }
+
+
+    requestAnimationFrame(nextSlide);
+</script>
+
+</body>
+</html>

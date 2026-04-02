@@ -1,0 +1,197 @@
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>project DESA v 5_ALPHA</title>
+  <link rel="icon" href="./favicon.ico" type="image/x-icon"/>
+  <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon"/>
+
+  <link rel="stylesheet" href="style/servers.css"/>
+  <link rel="stylesheet" href="style/channels.css"/>
+  <link rel="stylesheet" href="style/chat.css"/>
+  <link rel="stylesheet" href="style/messageInputField.css"/>
+  <link rel="stylesheet" href="style/rightMenu.css"/>
+  <link rel="stylesheet" href="style/settings.css"/>
+  <link rel="stylesheet" href="style/messages.css"/>
+  <link rel="stylesheet" href="style/authMenu.css"/>
+  <style>
+    :root {
+  /* ... ваши цвета ... */
+  --color-primary: #7b68ee;
+  --color-secondary: #ff6b6b;
+  --color-accent: #4ecdc4;
+  --color-highlight: #ff9ff3;
+  --color-bg: rgba(25, 25, 35, 0.7);
+  --color-text: #ffffff;
+  --color-muted: #b9bbbe;
+  --border-radius: 0.75rem; /* 12px -> 0.75rem */
+  --blur: 12px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  --border-width: 2px;
+  
+  /* Новые переменные для адаптации */
+  --servers-width: 4.5rem; /* 72px */
+  --channels-width: 15rem; /* 240px */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+body {
+  display: flex;
+  height: 100dvh; /* Динамическая высота для мобильных */
+  background-color: #1a1a2e;
+  color: var(--color-text);
+  overflow: hidden;
+}
+
+span {
+  white-space: pre-wrap; /* или pre-line */
+}
+
+  </style>
+</head>
+<body>
+  <div class="servers-panel" id="serversPanel">
+    <div class="server-separator"></div>
+    <div class="servers-list" id="guildList">
+      <!-- Список серверов будет добавляться здесь динамически -->
+    </div>
+  </div>
+
+  <div class="channels-panel" id="channelsPanel">
+    <div class="server-info" id="serverInfo">
+      <h3>...</h3>
+    </div>
+
+    <div class="channel-list" id="channelList">
+    </div>
+  </div>
+
+  <div class="chat-container">
+    <div class="chat-header" id="chatHeader">...</div>
+    <div class="messages-area" id="messagesArea">
+      <!-- Сообщения будут добавляться здесь динамически -->
+    </div>
+    <div class="message-input-container" id="messageInputContainer">
+      <button class="attach-btn" id="attachBtn">+</button>
+      <textarea class="message-input-field" placeholder="Сообщение #общий" rows="1"></textarea>
+      <button class="send-btn">➤</button>
+    </div>
+  </div>
+
+  <div class="right-menu" id="rightMenu"></div>
+
+  <div class="auth-menu closed" id="authMenu"></div>
+
+
+  <script type="module"> 
+    import { GuildManager } from "./js/guild/GuildManager.js";
+    import { Core } from "./js/Core.js";
+
+    const core = new Core();
+    //const guildManager = core.getGuildManager();
+    //guildManager.createGuild("10.8.1.1:2370").getConnection().connect(false);
+  </script>
+
+
+
+
+
+
+  <script type="module">
+    const serversList = document.querySelector('.servers-list');
+    const channelsPanel = document.getElementById('channelsPanel');
+    const toggleBtn = document.getElementById('toggleChannelsBtn');
+    const messagesArea = document.getElementById('messagesArea');
+    const messageInputContainer = document.getElementById('messageInputContainer');
+    const messageInput = document.getElementById('messageInput');
+    const attachBtn = document.getElementById('attachBtn');
+    const sendBtn = document.getElementById('sendBtn');
+    const channelList = document.getElementById('channelList');
+    const userProfile = document.getElementById('userProfile');
+    const closeProfileBtn = document.getElementById('closeProfile');
+
+
+    messagesArea.addEventListener('click', (e) => {
+      if (e.target.closest('.message')) {
+        userProfile.classList.add('open');
+      }
+    });
+
+    closeProfileBtn.addEventListener('click', () => {
+      userProfile.classList.remove('open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (userProfile.classList.contains('open') && 
+          !userProfile.contains(e.target) && 
+          !e.target.closest('.message')) {
+        userProfile.classList.remove('open');
+      }
+    });
+
+    messageInput.addEventListener('input', () => {
+      attachBtn.classList.toggle('hidden', messageInput.value.trim() !== '');
+    });
+
+    sendBtn.addEventListener('click', () => {
+      const text = messageInput.value.trim();
+      if (text) {
+        
+        try {
+          core.getSelectedGuild().channelManager.getSelectedChannel().processMessage(text);
+        } catch (error) {
+          console.error("Ошибка при отправке сообщения:", error);
+        }
+
+        messageInput.value = '';
+        attachBtn.classList.remove('hidden');
+        messageInput.style.height = 'auto';
+      }
+    });
+
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+
+    messageInput.addEventListener('input', () => {
+      messageInput.style.height = 'auto';
+      messageInput.style.height = Math.min(messageInput.scrollHeight, 100) + 'px';
+    });
+
+
+
+
+
+
+
+
+
+
+
+    // Обработка сообщений из callback.html
+    //{type: AUTH, guildId:123, authMethodName:google, payload:{...}}
+    window.addEventListener('message', async (event) => {
+      if (event.origin !== window.origin) {return;}
+      const data = JSON.parse(event.data);
+      if (data.type != "AUTH") {return;}
+
+      core
+        .getGuildManager()
+        .getGuild(data.guildId)
+        .getAuthManager()
+        .getMethod(data.authMethodName)
+        .auth(data.payload);
+    });
+
+  </script>
+</body>
+</html>
