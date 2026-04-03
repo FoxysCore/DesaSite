@@ -19,7 +19,7 @@ export class GoogleAuthMethod extends AuthMethod{
         const left = (screen.width - width) / 2;
         const top = (screen.height - height) / 2;
 
-        const popup = window.open(
+        window.open(
             url,
             'DesaAuth',
             `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
@@ -27,6 +27,13 @@ export class GoogleAuthMethod extends AuthMethod{
     }
 
     auth(payload) {
-        console.log(payload);
+        this.getAuthManager().getGuild().getConnection().sendPackage({
+                    type: "AUTH",
+                    authMethodName: this.getName(),
+                    userInfo: this.getAuthManager().getGuild().getGuildManager().getCore().getSettingsManager().getClientSettings().getCurrentUserInfo(),
+                    authData: {
+                        code: payload.code
+                    }
+                });
     }
 }

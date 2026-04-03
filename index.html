@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="style/rightMenu.css"/>
   <link rel="stylesheet" href="style/settings.css"/>
   <link rel="stylesheet" href="style/messages.css"/>
-  <link rel="stylesheet" href="style/authMenu.css"/>
+  <link rel="stylesheet" href="style/centerMenu.css"/>
   <style>
     :root {
   /* ... ваши цвета ... */
@@ -163,7 +163,7 @@ span {
 
   <div class="right-menu" id="rightMenu"></div>
 
-  <div class="auth-menu closed" id="authMenu"></div>
+  <div class="center-menu" id="centerMenu"></div>
 
 
   <script type="module"> 
@@ -173,6 +173,20 @@ span {
     const core = new Core();
     //const guildManager = core.getGuildManager();
     //guildManager.createGuild("192.168.1.142:2370").getConnection().connect(false);
+
+    // Обработка сообщений из callback.html
+    //{type: AUTH, guildId:123, authMethodName:google, payload:{...}}
+    window.addEventListener('message', async (event) => {
+      if (event.origin !== window.origin) {return;}
+      if (event.data.type != "AUTH") {return;}
+
+      core
+        .getGuildManager()
+        .getGuild(event.data.guildId)
+        .getAuthManager()
+        .getMethod(event.data.authMethodName)
+        .auth(event.data.payload);
+    });
   </script>
 
 
@@ -242,23 +256,6 @@ span {
     messageInput.addEventListener('input', () => {
       messageInput.style.height = 'auto';
       messageInput.style.height = Math.min(messageInput.scrollHeight, 100) + 'px';
-    });
-
-
-
-    // Обработка сообщений из callback.html
-    //{type: AUTH, guildId:123, authMethodName:google, payload:{...}}
-    window.addEventListener('message', async (event) => {
-      if (event.origin !== window.origin) {return;}
-      const data = JSON.parse(event.data);
-      if (data.type != "AUTH") {return;}
-
-      core
-        .getGuildManager()
-        .getGuild(data.guildId)
-        .getAuthManager()
-        .getMethod(data.authMethodName)
-        .auth(data.payload);
     });
 
   </script>

@@ -6,7 +6,17 @@
 </head>
 <body>
   <p>Подождите, идёт авторизация...</p>
+  <textarea id="data-input"></textarea>
+  <button onclick="tryToSend();">sent</button>
   <script>
+
+    function tryToSend() {
+      console.log(window.opener);
+      window.opener.postMessage(
+        JSON.parse(document.getElementById("data-input").value),
+        window.location.origin
+      );
+    }
 
     //{type: AUTH, guildId:123, authMethodName:google, payload:{...}}
 
@@ -19,15 +29,18 @@
     const guildId = guildData.guildId;
     const authMethodName = guildData.methodName;
 
+    const data = {type: "AUTH", guildId: guildId, authMethodName: authMethodName, payload: payload};
+
     try {
-      window.opener?.postMessage(
-        {type: AUTH, guildId: guildId, authMethodName: authMethodName, payload: payload},
+      window.opener.postMessage(
+        data,
         window.location.origin
       );
+      setTimeout(() => window.close(), 1000);
     } catch (e) {
       console.error(e);
+      document.getElementById("data-input").textContent = JSON.stringify(data);
     }
-    //setTimeout(() => window.close(), 1000);
   </script>
 </body>
 </html>

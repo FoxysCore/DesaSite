@@ -82,8 +82,17 @@ export class GuildListRenderer {
         header.innerHTML = "";
         header.appendChild(guild.getInfo().getDisplayNameElement());
 
+        this.#renderer.getMessagesRenderer().clear();
+
         if (guild.getConnection().getState() === ConnectionState.CONNECTED) {
-            this.#renderer.getAuthMenuRenderer().renderOptions(guild);
+            this
+            .#renderer
+            .getCenterMenuRenderer()
+            .openAuthMethods(
+                guild
+                .getAuthManager()
+                .getMethods()
+            );
         }
     }
 

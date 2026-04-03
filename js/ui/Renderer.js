@@ -2,7 +2,7 @@ import { GuildListRenderer } from "./GuildListRenderer.js";
 import { ChannelsRenderer } from "./ChannelsRenderer.js";
 import { RightMenuRenderer } from "./RightMenuRenderer.js";
 import { MessagesRenderer } from "./MessagesRenderer.js";
-import { AuthMenuRenderer } from "./AuthMenuRenderer.js";
+import { CenterMenuRenderer } from "./CenterMenuRenderer.js"
 
 export class Renderer {
     #core;
@@ -10,7 +10,7 @@ export class Renderer {
     #channelsRenderer;
     #rightMenuRenderer;
     #messagesRenderer;
-    #authMenuRenderer;
+    #centerMenuRenderer;
 
     constructor(core) {
         this.#core = core;
@@ -18,7 +18,7 @@ export class Renderer {
         this.#channelsRenderer = new ChannelsRenderer(this);
         this.#rightMenuRenderer = new RightMenuRenderer(this);
         this.#messagesRenderer = new MessagesRenderer(this);
-        this.#authMenuRenderer = new AuthMenuRenderer(this);
+        this.#centerMenuRenderer = new CenterMenuRenderer(this);
     }
 
     getCore() {
@@ -41,7 +41,7 @@ export class Renderer {
         return this.#messagesRenderer;
     }
 
-    getAuthMenuRenderer() {
-        return this.#authMenuRenderer;
+    getCenterMenuRenderer() {
+        return this.#centerMenuRenderer;
     }
 }

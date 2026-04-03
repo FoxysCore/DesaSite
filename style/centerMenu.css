@@ -1,0 +1,50 @@
+/* === Центрированное всплывающее меню (Модальное окно) === */
+.center-menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    /* Сдвигаем на 50% от своих размеров для точного центрирования. 
+       В закрытом состоянии оно чуть ниже и меньше (эффект всплытия) */
+    transform: translate(-50%, -45%) scale(0.95); 
+    
+    width: 0;
+    min-width: var(--right-menu-width);
+    max-height: 85vh; /* Не дает меню вылезти за пределы экрана по вертикали */
+    
+    background: var(--color-bg-panel);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    
+    z-index: 1000; /* Должно перекрывать все остальные панели (z-index чата и панелей обычно меньше 50) */
+    overflow-y: auto;
+    backdrop-filter: blur(var(--blur));
+    /* Тень делаем чуть агрессивнее, чтобы окно "оторвалось" от фона */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); 
+    
+    /* Состояние "Закрыто" */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity var(--transition-speed) ease-out, 
+                transform var(--transition-speed) ease-out,
+                visibility var(--transition-speed);
+}
+
+/* Состояние "Открыто" */
+.center-menu.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    /* Возвращаем в идеальный центр и нормальный масштаб */
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* === Адаптация для мобильных устройств === */
+@media (max-width: 768px) {
+    .center-menu {
+        width: 95%; /* На телефонах занимаем почти всю ширину */
+        padding: 1rem;
+        max-width: none;
+    }
+}

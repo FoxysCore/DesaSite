@@ -78,6 +78,10 @@ export class MessagesRenderer {
         });
     }
 
+
+    clear() {
+        this.#messagesArea.innerHTML = "";
+    }
     
     /**
      * Полностью перерисовывает чат при смене канала (очищает и загружает последние сообщения).
