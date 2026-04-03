@@ -50,7 +50,8 @@ export class GuildManager {
             const guild = new Guild(this, guildInfo.id, guildInfo.address);
             this.#guilds.set(guild.getId(), guild);
             this.#core.getRenderer().getGuildListRenderer().createGuild(guild);
-            guild.getConnection().connect(false);
+            try {guild.getConnection().connect(false);}
+            catch (e) {guild.getConnection().connect(true);}
         }
     }
 
