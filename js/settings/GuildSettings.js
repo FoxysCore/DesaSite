@@ -14,6 +14,10 @@ export class GuildSettings {
         this.#settingsManager = settingsManager;
     }
 
+    getSettingsManager() {
+        return this.#settingsManager;
+    }
+
     getGuildInfos() {
         const data = localStorage.getItem("savedGuilds");
         if (data === null) {return [];}

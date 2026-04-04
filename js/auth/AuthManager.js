@@ -1,4 +1,5 @@
 import {GoogleAuthMethod} from "./AuthMethods/GoogleAuthMethod.js"
+import {SessionTokenAuthMethod} from "./AuthMethods/SessionTokenAuthMethod.js"
 
 export class AuthManager {
     #guild;
@@ -22,7 +23,8 @@ export class AuthManager {
         let method = null;
         switch (methodName) {
             case "defaultSessionTokenAuthMethod":
-                return;
+                method = new SessionTokenAuthMethod(this, payload);
+                break;
 
             case "defaultGoogleAuthMethod":
                 method = new GoogleAuthMethod(this, payload);

@@ -35,6 +35,7 @@ export class PackageRouter {
                 }
                 //break;
                 const tokenMethod = this.#guild.getAuthManager().getMethod("defaultSessionTokenAuthMethod");
+                console.log(tokenMethod);
                 if (tokenMethod) {tokenMethod.auth({});}
                 break;
                 this.#guild.getConnection().sendPackage({
@@ -50,6 +51,15 @@ export class PackageRouter {
 
             case "AUTH_SUCCESS":
                 this.#guild.getUserManager().setCurrentUser(pkg.userId);
+                const guildSettings = this
+                    .#guild
+                    .getGuildManager()
+                    .getCore()
+                    .getSettingsManager()
+                    .getGuildSettings();
+
+                    guildSettings.setGuildSessionToken(this.#guild.getId(), pkg.sessionToken);
+                    guildSettings.setGuildUserId(this.#guild.getId(), pkg.userId);
                 break;
 
             case "CHANNEL_CREATED":
