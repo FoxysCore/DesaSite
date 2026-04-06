@@ -3,6 +3,7 @@ import { ChannelsRenderer } from "./ChannelsRenderer.js";
 import { RightMenuRenderer } from "./RightMenuRenderer.js";
 import { MessagesRenderer } from "./MessagesRenderer.js";
 import { CenterMenuRenderer } from "./CenterMenuRenderer.js"
+import { SettingsRenderer } from "./SettingsRenderer.js";
 
 export class Renderer {
     #core;
@@ -11,6 +12,7 @@ export class Renderer {
     #rightMenuRenderer;
     #messagesRenderer;
     #centerMenuRenderer;
+    #settingsRenderer;
 
     constructor(core) {
         this.#core = core;
@@ -19,6 +21,7 @@ export class Renderer {
         this.#rightMenuRenderer = new RightMenuRenderer(this);
         this.#messagesRenderer = new MessagesRenderer(this);
         this.#centerMenuRenderer = new CenterMenuRenderer(this);
+        this.#settingsRenderer = new SettingsRenderer(this);
     }
 
     getCore() {

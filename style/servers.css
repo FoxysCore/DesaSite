@@ -26,6 +26,8 @@
     transition: all var(--transition-speed) ease;
     background: var(--color-bg-server);
     position: relative;
+
+    flex-shrink: 0;
 }
 
 .server-separator {
@@ -39,8 +41,14 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    height: 100%;
+    flex: 1;
+    overflow-y: auto;
 }
 
+.servers-list::-webkit-scrollbar {
+    display: none;
+}
 
 .server-tooltip {
     position: absolute;

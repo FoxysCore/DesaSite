@@ -126,7 +126,6 @@ span {
       overflow: hidden;
       position: relative;
     }
-
     span {
       white-space: pre-wrap;
     }
@@ -135,9 +134,14 @@ span {
     <body>
       <div class="servers-panel" id="serversPanel">
         <div class="server-separator"></div>
-    <div class="servers-list" id="guildList">
-      <!-- Список серверов будет добавляться здесь динамически -->
-    </div>
+        <div class="servers-list" id="guildList">
+          <!-- Список серверов будет добавляться здесь динамически -->
+        </div>
+        <div class="server-separator"></div>
+        <div id="settingsButton" class="server-icon">
+          <img src="https://s1.iconbird.com/ico/2013/12/505/w450h4001385925286Settings.png">
+        </div>
+
   </div>
 
   <div class="channels-panel" id="channelsPanel">
@@ -162,8 +166,12 @@ span {
   </div>
 
   <div class="right-menu" id="rightMenu"></div>
-
   <div class="center-menu" id="centerMenu"></div>
+
+  <div class="settings-menu open" id="settingsMenu">
+    <div class="settings-list" id="settingsMenuList"></div>
+    <div class="settings-container" id="settingsContainer"></div>
+  </div>
 
 
   <script type="module"> 

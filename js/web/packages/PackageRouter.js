@@ -37,7 +37,7 @@ export class PackageRouter {
                 const tokenMethod = this.#guild.getAuthManager().getMethod("defaultSessionTokenAuthMethod");
                 console.log(tokenMethod);
                 if (tokenMethod) {tokenMethod.auth({});}
-                break;
+                //break;
                 this.#guild.getConnection().sendPackage({
                     type: "AUTH",
                     authMethodName: "defaultSessionTokenAuthMethod",

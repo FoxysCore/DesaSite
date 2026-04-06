@@ -38,7 +38,7 @@ export class GuildManager {
     }
 
     getGuilds() {
-        return this.#guilds;
+        return this.#guilds.values();
     }
 
     getCore() {return this.#core;}
