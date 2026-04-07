@@ -6,7 +6,7 @@ export class GuildInfo {
 
 
     constructor() {
-        this.displayName = "";
+        this.displayName = "-";
         this.description = "";
         this.iconUrl = "";
         this.bannerUrl = "";

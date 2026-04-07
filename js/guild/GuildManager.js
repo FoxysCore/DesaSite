@@ -18,6 +18,8 @@ export class GuildManager {
         this.#guilds.set(guild.getId(), guild);
         this.#core.getRenderer().getGuildListRenderer().createGuild(guild);
         this.#core.getSettingsManager().getGuildSettings().createGuild(guild);
+        try {guild.getConnection().connect(false);}
+        catch (e) {guild.getConnection().connect(true);}
         return guild;
     }
 
@@ -28,9 +30,10 @@ export class GuildManager {
     removeGuild(id) {
         const guild = this.#guilds.get(id);
         if (!guild) {return;}
-        this.#core.getRenderer().getGuildListRenderer().removeGuild(guild);
+        this.#core.getRenderer().getGuildListRenderer().removeGuild(id);
         guild.getConnection().disconnect();
         this.#guilds.delete(id);
+        this.#core.getSettingsManager().getGuildSettings().removeGuild(guild);
     }
 
     getGuild(id) {

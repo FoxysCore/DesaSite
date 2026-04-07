@@ -6,8 +6,8 @@ export class SettingsRenderer {
         this.#renderer = renderer;
         this.#settingsContainer = document.getElementById("settingsContainer");
         this.#settingsMenuList = document.getElementById("settingsMenuList");
-        this.addPage("test1", () => {this.#renderUserInfoSettings();});
-        this.addPage("test2", ()=>{this.#renderGuildList()});
+        this.addPage("Профиль", () => {this.#renderUserInfoSettings();});
+        this.addPage("Серверы", ()=>{this.#renderGuildList()});
     }
 
 
@@ -81,25 +81,69 @@ export class SettingsRenderer {
 
 
     #renderGuildList() {
+        this.#clearScreen();
         const guildManager = this.#renderer.getCore().getGuildManager();
 
+        const tableBlock = document.createElement("div");
+        tableBlock.classList.add("menu-block");
+        const table = document.createElement("table");
+        table.classList.add("guild-table");
+        tableBlock.appendChild(table);
+        table.innerHTML = "<thead><tr><td>ID</td><td>Название</td><td>Адрес</td><td>Состояние</td></tr></thead></thead>"
+        this.#settingsContainer.appendChild(tableBlock);
+        const tBody = document.createElement("tbody");
+        table.appendChild(tBody);
+
+
         for (const guild of guildManager.getGuilds()) {
+            if (guild === guildManager.getHomeGuild()) {continue;}
+
             const guildDiv = document.createElement("div");
             guildDiv.classList.add("menu-block");
 
-            const id = document.createElement("span");
-            id.textContent = guild.getId();
-            
-            const addr = document.createElement("span");
-            addr.textContent = guild.getConnection().getAddress();
-            
-            const state = document.createElement("span");
-            state.textContent = guild.getConnection().getState();
-            
-            guildDiv.appendChild(id);
-            guildDiv.appendChild(addr);
-            guildDiv.appendChild(state);
-            this.#settingsContainer.appendChild(guildDiv);
+            const tr = document.createElement("tr");
+            table.appendChild(tr);
+            for (const content of [guild.getId(), guild.getInfo().getDisplayName(), guild.getConnection().getAddress(), guild.getConnection().getState()]) {
+                const td = document.createElement("td");
+                td.textContent = content;
+                tr.appendChild(td);
+            }
+            tBody.appendChild(tr);
+
+            const buttonsTd = document.createElement("td"); 
+            tr.appendChild(buttonsTd);
+            const removeBtn = document.createElement("div");
+            removeBtn.classList.add("nemu-block");
+            removeBtn.textContent = "-";
+            removeBtn.addEventListener("click", () => {
+                guildManager.removeGuild(guild.getId());
+                this.#renderGuildList();
+            })
+            buttonsTd.appendChild(removeBtn);
         }
+
+
+
+        const newGuildInputGroup = document.createElement("div");
+        newGuildInputGroup.classList.add("menu-block");
+
+        const inputField = document.createElement("input");
+        inputField.classList.add("guild-ip-input");
+        newGuildInputGroup.appendChild(inputField);
+
+        const addGuildBtn = document.createElement("div");
+        addGuildBtn.classList.add("menu-block");
+        addGuildBtn.textContent = "Добавить"
+        newGuildInputGroup.appendChild(addGuildBtn);
+
+        addGuildBtn.addEventListener("click", () => {
+            if (inputField.value === "") {return;}
+            guildManager.createGuild(inputField.value);
+            this.#renderGuildList();
+        });
+
+
+
+        this.#settingsContainer.appendChild(newGuildInputGroup);
     }
 }

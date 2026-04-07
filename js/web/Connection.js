@@ -62,11 +62,15 @@ export class Connection {
     }
 
 
-    getState() {return this.#state;}
+    getState() {
+        if (this.#guild.getId() === 0) {return ConnectionState.AUTHENTICATED;}
+        return this.#state;
+    }
 
     getAddress() {return this.#address;}
 
     #setState(state) {
+        if (this.#guild.getId() === 0) {state = ConnectionState.AUTHENTICATED;}
         this.#state = state;
         this.#guild.getGuildManager().getCore().getRenderer().getGuildListRenderer().setGuildConnectionState(this.#guild.getId(), state);
     }

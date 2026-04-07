@@ -40,10 +40,13 @@ export class GuildSettings {
 
     removeGuild(guild) {
         const list = this.getGuildInfos();
-        for (guildInfo of list) {
-            if (guildInfo.id === guild.getId()) {
+        const newList = [];
+        for (const guildInfo of list) {
+            if (guildInfo.id != guild.getId()) {
+                newList.push(guildInfo);
             }
         }
+        this.#writeGuildList(newList);
     }
 
     getGuildSessionToken(id) {

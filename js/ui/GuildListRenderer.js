@@ -34,7 +34,7 @@ export class GuildListRenderer {
     removeGuild(id) {
         const guildElement = document.getElementById("guild-" + id);
         if (!guildElement) {return;}
-        this.#guildList.removeChild(guildElement);
+        guildElement.remove();
     }
 
 
