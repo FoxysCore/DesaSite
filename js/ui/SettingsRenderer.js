@@ -1,13 +1,19 @@
 export class SettingsRenderer {
     #renderer;
+    #settingsMenu;
     #settingsContainer;
     #settingsMenuList;
     constructor(renderer) {
         this.#renderer = renderer;
+        this.#settingsMenu = document.getElementById("settingsMenu");
         this.#settingsContainer = document.getElementById("settingsContainer");
         this.#settingsMenuList = document.getElementById("settingsMenuList");
         this.addPage("Профиль", () => {this.#renderUserInfoSettings();});
         this.addPage("Серверы", ()=>{this.#renderGuildList()});
+
+        document.getElementById("settingsButton").addEventListener("click", () => {
+            this.#settingsMenu.classList.toggle("open");
+        });
     }
 
 

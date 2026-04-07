@@ -96,6 +96,7 @@
 @media (max-width: 768px) {
     .settings-menu {
         width: 95%; /* На телефонах занимаем почти всю ширину */
+        height: 80vh;
         padding: 1rem;
         max-width: none;
     }
