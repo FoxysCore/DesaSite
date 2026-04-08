@@ -18,8 +18,8 @@ export class GuildManager {
         this.#guilds.set(guild.getId(), guild);
         this.#core.getRenderer().getGuildListRenderer().createGuild(guild);
         this.#core.getSettingsManager().getGuildSettings().createGuild(guild);
-        try {guild.getConnection().connect(false);}
-        catch (e) {guild.getConnection().connect(true);}
+        try {guild.getConnection().connect(true);}
+        catch (e) {guild.getConnection().connect(false);}
         return guild;
     }
 
@@ -53,8 +53,8 @@ export class GuildManager {
             const guild = new Guild(this, guildInfo.id, guildInfo.address);
             this.#guilds.set(guild.getId(), guild);
             this.#core.getRenderer().getGuildListRenderer().createGuild(guild);
-            try {guild.getConnection().connect(false);}
-            catch (e) {guild.getConnection().connect(true);}
+            try {guild.getConnection().connect(true);}
+            catch (e) {guild.getConnection().connect(false);}
         }
     }
 

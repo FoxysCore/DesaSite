@@ -1,4 +1,4 @@
-import { UserInfo } from "../users/UserInfo.js";
+import { b64Encode } from "../utils/base64.js"
 
 
 export class ClientSettings {
@@ -13,6 +13,17 @@ export class ClientSettings {
         if (openConfigPage) {window.location.replace("setup.html");}
     }
 
+    setCurrentUserInfo(info) {
+        localStorage.setItem("currentUserInfo", 
+            JSON.stringify({
+                b64DisplayName: b64Encode(info.getDisplayName()),
+                b64Description: b64Encode(info.getDescription()),
+                b64IconUrl: b64Encode(info.getIconUrl()),
+                b64BannerUrl: b64Encode(info.getBannerUrl()),
+                updateTimeStamp: info.getUpdateTimestamp()
+            })
+        )
+    } 
 
     getCurrentUserInfo() {
         const str = localStorage.getItem("currentUserInfo");

@@ -33,7 +33,6 @@ export class PackageRouter {
                         methodData.payload
                     );   
                 }
-                //break;
                 const tokenMethod = this.#guild.getAuthManager().getMethod("defaultSessionTokenAuthMethod");
                 console.log(tokenMethod);
                 if (tokenMethod) {tokenMethod.auth({});}
@@ -74,6 +73,15 @@ export class PackageRouter {
                     b64Decode(pkg.user.info.b64BannerUrl),
                     pkg.user.info.updateTimeStamp
                 );
+
+                const clientSettings = this.#guild.getGuildManager().getCore().getSettingsManager().getClientSettings();
+
+                if (
+                    user === user.getUserManager().getCurrentUser() && 
+                    lientSettingsgetCurrentUserInfo().updateTimestamp < pkg.user.info.updateTimeStamp
+                ) {
+                    clientSettings.setCurrentUserInfo(user.getInfo());
+                }
                 break;
 
 

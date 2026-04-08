@@ -138,7 +138,7 @@ span {
           <!-- Список серверов будет добавляться здесь динамически -->
         </div>
         <div class="server-separator"></div>
-        <div id="settingsButton" class="server-icon">
+        <div id="settingsButton" class="server-icon" onclick="document.getElementById('settingsMenu').classList.toggle('open')">
           <img src="https://s1.iconbird.com/ico/2013/12/505/w450h4001385925286Settings.png">
         </div>
 
@@ -169,8 +169,70 @@ span {
   <div class="center-menu" id="centerMenu"></div>
 
   <div class="settings-menu" id="settingsMenu">
-    <div class="settings-list" id="settingsMenuList"></div>
-    <div class="settings-container" id="settingsContainer"></div>
+    <div class="settings-list" id="settingsList"></div>
+    <div id="settingsPages" style="display: flex;">
+    
+      <div class="settings-container active" id="settingsUserInfo" data-name="Профиль">
+        <div class="menu-block">
+          <div class="server-icon active settings-user-icon">
+            <img src="" id="settingsUserIcon">
+          </div>
+          <h3 class="menu-block">
+            <span id="settingsUserDisplayName"></span>
+          </h3>
+        </div>
+
+        <div class="menu-block">
+          <span id="settingsUserDescription"></span>
+        </div>
+
+        <div class="menu-block">
+          <img src="" id="settingsUserBanner">
+        </div>
+
+        <label for="settingsNewUserDisplayName">Новое имя пользователя</label>
+        <input type="text" id="settingsNewUserDisplayName" placeholder="DesaUser :>" oninput="document.getElementById('settingsUserDisplayName').textContent = document.getElementById('settingsNewUserDisplayName').value">
+
+        <label for="settingsNewUserDescription">Новое описание</label>
+        <textarea type="text" id="settingsNewUserDescription" placeholder="Мне 19 лет и я люблю печеньки!" oninput="document.getElementById('settingsUserDescription').textContent = document.getElementById('settingsNewUserDescription').value"></textarea>
+
+        <label for="settingsNewUserIconUrl">Новая иконка</label>
+        <input type="text" id="settingsNewUserIconUrl" oninput="document.getElementById('settingsUserIcon').src = document.getElementById('settingsNewUserIconUrl').value">
+
+        <label for="settingsNewUserBannerUrl">Новый баннер</label>
+        <input type="text" id="settingsNewUserBannerUrl" oninput="document.getElementById('settingsUserBanner').src = document.getElementById('settingsNewUserBannerUrl').value">
+      
+        <div class="menu-block">
+          <div class="menu-block" id="settingsUserCancelButton">Отменить</div>
+          <div class="menu-block" id="settingsUserSaveButton">Сохранить</div>
+        </div>
+      
+      </div>
+      
+      <div class="settings-container" id="settingsGuilds" data-name="Серверы">
+        <div class="menu-block">
+          <table class="settings-guild-table">
+            <thead>
+              <tr>
+                <td>ID</td>
+                <td>Название</td>
+                <td>Адрес</td>
+                <td>Состояние</td>
+              </tr>
+            </thead>
+            <tbody id="settingsGuildTable">
+
+            </tbody>
+          </table>
+        </div>
+        <div class="menu-block">
+          <input class="settings-guild-ip-input" id="settingsGuildIpInput">
+          <div class="menu-block" id="settingsAddGuildBtn">Добавить</div>
+        </div>
+      </div>
+
+    
+    </div>
   </div>
 
 

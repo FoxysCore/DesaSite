@@ -1,114 +1,118 @@
+import { b64Decode } from "../utils/base64.js";
+
 export class SettingsRenderer {
     #renderer;
-    #settingsMenu;
     #settingsContainer;
-    #settingsMenuList;
     constructor(renderer) {
         this.#renderer = renderer;
-        this.#settingsMenu = document.getElementById("settingsMenu");
-        this.#settingsContainer = document.getElementById("settingsContainer");
-        this.#settingsMenuList = document.getElementById("settingsMenuList");
-        this.addPage("Профиль", () => {this.#renderUserInfoSettings();});
-        this.addPage("Серверы", ()=>{this.#renderGuildList()});
 
-        document.getElementById("settingsButton").addEventListener("click", () => {
-            this.#settingsMenu.classList.toggle("open");
-        });
+        const settingsList = document.getElementById("settingsList"); 
+
+        for (const element of document.getElementById("settingsPages").children) {
+            const channel = document.createElement("div");
+            channel.classList.add("channel-item");
+            channel.classList.add("SETTINGS");
+
+            const nameElement = document.createElement("span");
+            console.log(element);
+            nameElement.textContent = element.dataset.name;
+            channel.appendChild(nameElement);
+
+            channel.addEventListener("click", () => {
+                for (const menu of document.getElementById("settingsPages").children) {
+                    menu.classList.remove("active");
+                }
+                this.#updateUi(element.dataset.name);
+                element.classList.add("active");
+
+                for (const anotherChannel of settingsList.children) {
+                    anotherChannel.classList.remove("active");
+                }
+                channel.classList.add("active");
+
+            });
+
+            settingsList.appendChild(channel);
+            if (element.classList.contains("active")) {
+                channel.click();
+            }
+        }
+
+
+        document.getElementById("settingsAddGuildBtn").onclick = () => {
+            if (document.getElementById("settingsGuildIpInput").value != "") {
+                this
+                    .#renderer
+                    .getCore()
+                    .getGuildManager()
+                    .createGuild(
+                        document
+                        .getElementById("settingsGuildIpInput")
+                        .value
+                );
+                this.#updateUi("Серверы");
+
+            }
+        }
     }
 
-
-    #clearScreen() {
-        this.#settingsContainer.innerHTML = "";
-    }
-
-
-    addPage(name, onSelect) {
-        const channel = document.createElement("div");
-        channel.classList.add("channel-item");
-        channel.classList.add("SETTINGS");
-
-        const nameElement = document.createElement("span");
-        nameElement.textContent = name;
-        channel.appendChild(nameElement);
-
-        channel.addEventListener("click", () => {
-            this.#settingsMenuList.querySelectorAll(".channel-item").forEach(
-                (element) => {element.classList.remove("active");}                
-            )
-            channel.classList.add("active");
-            this.#clearScreen();
-            onSelect();
-        });
-
-        this.#settingsMenuList.appendChild(channel);
-    }
     
+    #updateUi(name){
+        switch (name) {
+            case "Серверы":
+                this.#renderGuildList();
+                return;
+            case "Профиль":
+                this.#renderUserInfoSettings();
+                return;
+        }
+    }
 
 
     #renderUserInfoSettings() {
-        const iconNameBlock = document.createElement("div");
-        const description = document.createElement("div");
-        const bannerBlock = document.createElement("div");
+        const clientSettings = this.#renderer.getCore().getSettingsManager().getClientSettings();
+        const currentUserInfo = clientSettings.getCurrentUserInfo();
 
-        iconNameBlock.classList.add("menu-block");
-        description.classList.add("menu-block");
-        bannerBlock.classList.add("menu-block");
+        const displayName = document.getElementById("settingsUserDisplayName");
+        const description = document.getElementById("settingsUserDescription");
+        const icon = document.getElementById("settingsUserIcon");
+        const banner = document.getElementById("settingsUserBanner");
 
+        const newDisplayName = document.getElementById("settingsNewUserDisplayName");
+        const newDescription = document.getElementById("settingsNewUserDescription");
+        const newIcon = document.getElementById("settingsNewUserIconUrl");
+        const newBanner = document.getElementById("settingsNewUserBannerUrl");
 
-        const iconElement = document.createElement("div");
-        iconElement.classList.add("server-icon");
-        iconElement.classList.add("active");
-        iconElement.style.width = "6rem";
-        iconElement.style.height = "6rem";
+        displayName.textContent = b64Decode(currentUserInfo.b64DisplayName);
+        description.textContent = b64Decode(currentUserInfo.b64Description);
+        icon.src = b64Decode(currentUserInfo.b64IconUrl);
+        banner.src = b64Decode(currentUserInfo.b64BannerUrl);
 
-        //iconElement.appendChild();
+        newDisplayName.value = b64Decode(currentUserInfo.b64DisplayName);
+        newDescription.value = b64Decode(currentUserInfo.b64Description);
+        newIcon.value = b64Decode(currentUserInfo.b64IconUrl);
+        newBanner.value = b64Decode(currentUserInfo.b64BannerUrl);
 
-        const nameElement = document.createElement("h3");
-        nameElement.classList.add("menu-block");
-        //nameElement.appendChild(user.getInfo().getDisplayNameElement());
+        document.getElementById("settingsUserCancelButton").onclick = ()=>{this.#renderUserInfoSettings();}
+        document.getElementById("settingsUserSaveButton").onclick = ()=>{
+            this.#renderUserInfoSettings();
+        }
 
-        iconNameBlock.appendChild(iconElement);
-        iconNameBlock.appendChild(nameElement);
+        
 
-
-
-        //description.appendChild(user.getInfo().getDescriptionElement());
-        //const banner = user.getInfo().getBannerElement();
-        //banner.style.width = "100%";
-        //banner.style.height = "auto";
-        //bannerBlock.appendChild(banner);
-
-
-
-        this.#settingsContainer.appendChild(iconNameBlock);
-        this.#settingsContainer.appendChild(description);
-        this.#settingsContainer.appendChild(bannerBlock);
     }
 
 
     #renderGuildList() {
-        this.#clearScreen();
         const guildManager = this.#renderer.getCore().getGuildManager();
-
-        const tableBlock = document.createElement("div");
-        tableBlock.classList.add("menu-block");
-        const table = document.createElement("table");
-        table.classList.add("guild-table");
-        tableBlock.appendChild(table);
-        table.innerHTML = "<thead><tr><td>ID</td><td>Название</td><td>Адрес</td><td>Состояние</td></tr></thead></thead>"
-        this.#settingsContainer.appendChild(tableBlock);
-        const tBody = document.createElement("tbody");
-        table.appendChild(tBody);
+        const tBody = document.getElementById("settingsGuildTable");
+        tBody.innerHTML = "";
 
 
         for (const guild of guildManager.getGuilds()) {
             if (guild === guildManager.getHomeGuild()) {continue;}
 
-            const guildDiv = document.createElement("div");
-            guildDiv.classList.add("menu-block");
-
             const tr = document.createElement("tr");
-            table.appendChild(tr);
             for (const content of [guild.getId(), guild.getInfo().getDisplayName(), guild.getConnection().getAddress(), guild.getConnection().getState()]) {
                 const td = document.createElement("td");
                 td.textContent = content;
@@ -127,29 +131,5 @@ export class SettingsRenderer {
             })
             buttonsTd.appendChild(removeBtn);
         }
-
-
-
-        const newGuildInputGroup = document.createElement("div");
-        newGuildInputGroup.classList.add("menu-block");
-
-        const inputField = document.createElement("input");
-        inputField.classList.add("guild-ip-input");
-        newGuildInputGroup.appendChild(inputField);
-
-        const addGuildBtn = document.createElement("div");
-        addGuildBtn.classList.add("menu-block");
-        addGuildBtn.textContent = "Добавить"
-        newGuildInputGroup.appendChild(addGuildBtn);
-
-        addGuildBtn.addEventListener("click", () => {
-            if (inputField.value === "") {return;}
-            guildManager.createGuild(inputField.value);
-            this.#renderGuildList();
-        });
-
-
-
-        this.#settingsContainer.appendChild(newGuildInputGroup);
     }
 }
