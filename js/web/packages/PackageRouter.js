@@ -77,7 +77,7 @@ export class PackageRouter {
                 const clientSettings = this.#guild.getGuildManager().getCore().getSettingsManager().getClientSettings();
 
                 if (
-                    user === user.getUserManager().getCurrentUser() && 
+                    user === this.#guild.getUserManager().getCurrentUser() && 
                     lientSettingsgetCurrentUserInfo().updateTimestamp < pkg.user.info.updateTimeStamp
                 ) {
                     clientSettings.setCurrentUserInfo(user.getInfo());
