@@ -14,14 +14,9 @@ export class ClientSettings {
     }
 
     setCurrentUserInfo(info) {
+        console.log(info.getDisplayName());
         localStorage.setItem("currentUserInfo", 
-            JSON.stringify({
-                b64DisplayName: b64Encode(info.getDisplayName()),
-                b64Description: b64Encode(info.getDescription()),
-                b64IconUrl: b64Encode(info.getIconUrl()),
-                b64BannerUrl: b64Encode(info.getBannerUrl()),
-                updateTimeStamp: info.getUpdateTimestamp()
-            })
+            JSON.stringify(info.json())
         )
     } 
 

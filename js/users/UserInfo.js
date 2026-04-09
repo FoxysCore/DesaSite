@@ -1,3 +1,5 @@
+import {b64Encode} from "../utils/base64.js"
+
 export class UserInfo {
     #displayName;
     #description;
@@ -136,17 +138,17 @@ export class UserInfo {
 
 
     update(displayName, description, iconUrl, bannerUrl, updateTimestamp) {
-        this.displayName = displayName;
-        this.description = description;
-        this.iconUrl = iconUrl;
-        this.bannerUrl = bannerUrl;
+        this.#displayName = displayName;
+        this.#description = description;
+        this.#iconUrl = iconUrl;
+        this.#bannerUrl = bannerUrl;
         if (updateTimestamp === 0) {this.#updateTimestamp = Date.now();}
         else {this.#updateTimestamp = updateTimestamp;}
 
-        this.#displayNameElement.textContent = this.displayName;
-        this.#descriptionElement.textContent = this.description;
-        this.#iconElement.src = this.iconUrl;
-        this.#bannerElement.src = this.bannerUrl;
+        this.#displayNameElement.textContent = this.#displayName;
+        this.#descriptionElement.textContent = this.#description;
+        this.#iconElement.src = this.#iconUrl;
+        this.#bannerElement.src = this.#bannerUrl;
     }
 
 

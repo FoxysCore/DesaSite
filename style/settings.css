@@ -185,6 +185,7 @@
     background: var(--color-bg-element);
     border: var(--border-width) solid var(--color-border);
     border-radius: 0.5rem;
+    min-width: 0px;
     color: var(--color-text);
     padding: 0.75rem 1rem;
     font-size: 1rem;
@@ -194,6 +195,12 @@
 .settings-guild-ip-input:focus {
     border-color: var(--color-accent);
 }
+
+.menu-block:has(.settings-guild-table) {
+        overflow-x: auto;
+        overflow-y: auto;
+        display: block;
+    }
 
 
 
@@ -299,11 +306,5 @@
 
     .settings-guild-input-block {
         flex-direction: column !important;
-    }
-
-    /* Делаем таблицу скроллящейся по горизонтали, если она не влезает */
-    .menu-block:has(.settings-guild-table) {
-        overflow-x: auto;
-        display: block;
     }
 }
