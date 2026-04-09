@@ -5,10 +5,6 @@ export class RightMenuRenderer {
     constructor(renderer) {
         this.#renderer = renderer;
         this.#rightMenu = document.getElementById("rightMenu");
-        document.body.addEventListener("click", (event) => {
-            if (event.target.closest(".right-menu")) {return;}
-            this.close();
-        });
     }
 
 

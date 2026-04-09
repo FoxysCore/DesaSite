@@ -1,107 +1,309 @@
 .channel-item.SETTINGS::before { content: "//"; }
 
-
+/* === Основной контейнер меню === */
 .settings-menu {
     position: fixed;
     top: 50%;
     left: 50%;
-    /* Сдвигаем на 50% от своих размеров для точного центрирования. 
-       В закрытом состоянии оно чуть ниже и меньше (эффект всплытия) */
     transform: translate(-50%, -45%) scale(0.95); 
     
-    width: 85vh;
-    height: 85vh; /* Не дает меню вылезти за пределы экрана по вертикали */
+    width: 80vw; /* Используем vw (viewport width) для ширины */
+    max-width: 900px; /* Ограничиваем максимальную ширину на ПК */
+    height: 80vh; 
     
     background: var(--color-bg-panel);
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--border-radius);
-    padding: 1.5rem;
     display: flex;
     flex-direction: row;
 
-    z-index: 1000; /* Должно перекрывать все остальные панели (z-index чата и панелей обычно меньше 50) */
-    overflow-y: auto;
+    z-index: 1000;
+    overflow: hidden; /* Скрываем общий скролл, скроллиться будут внутренние блоки */
     backdrop-filter: blur(var(--blur));
-    /* Тень делаем чуть агрессивнее, чтобы окно "оторвалось" от фона */
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); 
     
-    /* Состояние "Закрыто" */
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity var(--transition-speed) ease-out, 
-                transform var(--transition-speed) ease-out,
-                visibility var(--transition-speed);
+    transition: all var(--transition-speed) ease-out;
 }
 
-/* Состояние "Открыто" */
 .settings-menu.open {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    /* Возвращаем в идеальный центр и нормальный масштаб */
     transform: translate(-50%, -50%) scale(1);
 }
 
-
-.settings-list{
-    width: 20rem;
-    border-right: var(--border-width) solid var(--color-border);;
+/* === Боковой список вкладок === */
+.settings-list {
+    width: 15rem; /* Сделал чуть поуже, 20rem - слишком много */
+    border-right: var(--border-width) solid var(--color-border);
+    background: var(--color-bg-element);
+    flex-shrink: 0;
+    overflow-y: auto;
+    padding: 1rem 0;
 }
 
-.settings-container{
-    padding-left: 0.5rem;
-    width: 0;
+/* === Контейнер для страниц === */
+#settingsPages {
+    flex: 1; /* Занимает все оставшееся место */
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.settings-container {
+    padding: 1.5rem;
+    flex: 1;
     overflow-y: auto;
-    visibility: hidden;
     display: none;
 }
 
 .settings-container.active {
-    display: block;
-    visibility: visible;
-    width: 100%;
+    display: flex; /* Перевел на flex для удобных отступов */
+    flex-direction: column;
+    gap: 1.2rem; /* Расстояние между блоками */
 }
 
-
-.settings-guild-table{
-	border: var(--border-width) solid var(--color-border);
-	width: 100%;
-	margin-bottom: 20px;
-}
-.settings-guild-table th {
-	font-weight: bold;
-	padding: 5px;
-	background: var(--color-bg-element);
-	border: var(--border-width) solid var(--color-border);
-}
-.settings-guild-table td{
-	padding: 5px 10px;
-	border: var(--border-width) solid var(--color-border);
-	text-align: left;
-}
-.settings-guild-table tbody tr:nth-child(odd){
-	background: var(--color-bg-element);
-}
-.settings-guild-table tbody tr:nth-child(even){
-	background: var(--color-bg-hover);
+/* === Стилизация полей ввода (Профиль) === */
+.settings-container label {
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: -0.8rem; /* Придвигаем лейбл к инпуту */
 }
 
-.settings-guild-ip-input {
-    width: 100%;
-    height: 100%;
-    background: transparent;
-    border: var(--border-width) solid var(--color-border-active);
+.settings-container input[type="text"],
+.settings-container textarea {
+    background: var(--color-bg-element);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: 0.5rem;
     color: var(--color-text);
-    outline: none;
-    padding: 0 0;
+    padding: 0.75rem 1rem;
     font-size: 1rem;
+    outline: none;
+    width: 100%;
+    font-family: inherit;
+    transition: border var(--transition-speed), background var(--transition-speed);
 }
 
+.settings-container textarea {
+    resize: vertical;
+    min-height: 80px;
+}
 
+.settings-container input[type="text"]:focus,
+.settings-container textarea:focus {
+    border-color: var(--color-primary);
+    background: var(--color-bg-hover);
+}
 
-
+/* === Изображения профиля === */
 .settings-user-icon {
     height: 6rem !important;
     width: 6rem !important;
+    flex-shrink: 0;
+}
+
+#settingsUserBanner {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    background: var(--color-bg-server);
+}
+
+/* === Стилизация кнопок === */
+.menu-block[id*="Button"], 
+#settingsAddGuildBtn {
+    background: var(--color-bg-element);
+    border: var(--border-width) solid var(--color-border);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    text-align: center;
+    font-weight: bold;
+    transition: all var(--transition-speed);
+    flex: 1; /* Кнопки будут делить пространство поровну */
+}
+
+.menu-block[id*="Button"]:hover, 
+#settingsAddGuildBtn:hover {
+    background: var(--color-bg-hover);
+    border-color: var(--color-primary);
+}
+
+/* Делаем кнопки "Сохранить" и "Добавить" акцентными */
+#settingsUserSaveButton,
+#settingsAddGuildBtn {
+    background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+    border-color: transparent;
+    color: white;
+}
+
+#settingsUserSaveButton:hover,
+#settingsAddGuildBtn:hover {
+    filter: brightness(1.15);
+}
+
+/* === Таблица серверов === */
+.settings-guild-table {
+    width: 100%;
+    border-collapse: collapse; /* Убирает двойные границы между ячейками */
+    border-radius: 0.5rem;
+    overflow: hidden; /* Чтобы углы таблицы были круглыми */
+}
+
+.settings-guild-table th {
+    font-weight: bold;
+    padding: 0.75rem;
+    background: var(--color-bg-element);
+    color: var(--color-muted);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.settings-guild-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+}
+
+.settings-guild-table tbody tr {
+    transition: background var(--transition-speed);
+}
+
+.settings-guild-table tbody tr:hover {
+    background: var(--color-bg-hover);
+}
+
+.settings-guild-ip-input {
+    flex: 1; /* Поле ввода займет все место рядом с кнопкой */
+    background: var(--color-bg-element);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: 0.5rem;
+    color: var(--color-text);
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    outline: none;
+}
+
+.settings-guild-ip-input:focus {
+    border-color: var(--color-accent);
+}
+
+
+
+
+
+
+
+/* === Универсальные поля ввода === */
+.settings-input,
+.settings-textarea {
+    width: 100%;
+    /* Делаем фон поля чуть темнее, чем фон самой панели, чтобы оно "вдавливалось" */
+    background: rgba(10, 10, 15, 0.5); 
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    color: var(--color-text);
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    font-family: inherit; /* Наследуем шрифт приложения */
+    outline: none;
+    transition: border-color var(--transition-speed) ease, 
+                box-shadow var(--transition-speed) ease, 
+                background var(--transition-speed) ease;
+}
+
+/* Состояние при наведении мыши */
+.settings-input:hover,
+.settings-textarea:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(15, 15, 20, 0.6);
+}
+
+/* Состояние фокуса (когда пользователь кликнул и печатает) */
+.settings-input:focus,
+.settings-textarea:focus {
+    border-color: var(--color-primary); /* Фиолетовая рамка */
+    background: rgba(10, 10, 15, 0.8);
+    /* Добавляем мягкое свечение вокруг поля */
+    box-shadow: 0 0 0 3px rgba(123, 104, 238, 0.25); 
+}
+
+/* Стилизация текста-заглушки (placeholder) */
+.settings-input::placeholder,
+.settings-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+    font-style: italic;
+}
+
+/* === Специфичные настройки для Textarea === */
+.settings-textarea {
+    resize: vertical; /* Разрешаем растягивать только вниз, чтобы не сломать дизайн */
+    min-height: 80px;
+    line-height: 1.4;
+}
+
+/* Тонкий кастомный скроллбар для длинного текста в textarea */
+.settings-textarea::-webkit-scrollbar {
+    width: 6px;
+}
+.settings-textarea::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+.settings-textarea::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* === Мобильная адаптация === */
+@media (max-width: 768px) {
+    .settings-menu {
+        width: 95vw;
+        height: 90vh;
+        flex-direction: column; /* Меняем расположение на вертикальное */
+    }
+
+    .settings-list {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: var(--border-width) solid var(--color-border);
+        display: flex;
+        flex-direction: row; /* Вкладки выстраиваются в ряд */
+        overflow-x: auto; /* Горизонтальный скролл для вкладок */
+        padding: 0.5rem;
+    }
+
+    .settings-container {
+        padding: 1rem;
+    }
+
+    .settings-guild-input-block {
+        flex-direction: column !important;
+    }
+
+    /* Делаем таблицу скроллящейся по горизонтали, если она не влезает */
+    .menu-block:has(.settings-guild-table) {
+        overflow-x: auto;
+        display: block;
+    }
 }

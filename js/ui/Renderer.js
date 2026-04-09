@@ -22,6 +22,18 @@ export class Renderer {
         this.#messagesRenderer = new MessagesRenderer(this);
         this.#centerMenuRenderer = new CenterMenuRenderer(this);
         this.#settingsRenderer = new SettingsRenderer(this);
+
+        document.body.addEventListener("click", (event) => {
+            if (!event.target.closest("#rightMenu")) {this.#rightMenuRenderer.close();}
+            if (!event.target.closest("#centerMenu")) {this.#centerMenuRenderer.close();}
+            if (!event.target.closest("#settingsMenu")) {document.getElementById("settingsMenu").classList.remove("open")}
+            if (!event.target.closest("#channelsPanel") && !event.target.closest("#serversPanel")) {
+                if (window.innerWidth <= 768) {
+                    document.getElementById("serversPanel").classList.add("collapsed");
+                    document.getElementById("channelsPanel").classList.add("collapsed");
+                }
+            }
+        });
     }
 
     getCore() {

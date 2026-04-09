@@ -99,11 +99,11 @@ export class GuildListRenderer {
 
     setGuildConnectionState(id, state) {
         const guildElement = document.getElementById("guild-" + id);
-        guildElement.classList.remove("CONNECTED");
-        guildElement.classList.remove("DISCONNECTED");
-        guildElement.classList.remove("AUTHENTICATED");
+        guildElement?.classList.remove("CONNECTED");
+        guildElement?.classList.remove("DISCONNECTED");
+        guildElement?.classList.remove("AUTHENTICATED");
 
-        guildElement.classList.add(state)
+        guildElement?.classList.add(state)
     }
 
     #createGuildElement(guild) {
@@ -133,8 +133,9 @@ export class GuildListRenderer {
 
 
 
-        guildElement.addEventListener('click', () => {
+        guildElement.addEventListener('click', (event) => {
             this.selectGuild(guild.getId());
+            event.stopImmediatePropagation();
         });
 
 

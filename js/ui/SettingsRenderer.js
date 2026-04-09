@@ -2,11 +2,11 @@ import { b64Decode } from "../utils/base64.js";
 
 export class SettingsRenderer {
     #renderer;
-    #settingsContainer;
     constructor(renderer) {
         this.#renderer = renderer;
 
         const settingsList = document.getElementById("settingsList"); 
+
 
         for (const element of document.getElementById("settingsPages").children) {
             const channel = document.createElement("div");
@@ -38,6 +38,10 @@ export class SettingsRenderer {
             }
         }
 
+        document.getElementById("settingsButton").addEventListener("click", (event) => {
+            document.getElementById('settingsMenu').classList.toggle('open');
+            event.stopImmediatePropagation();
+        })
 
         document.getElementById("settingsAddGuildBtn").onclick = () => {
             if (document.getElementById("settingsGuildIpInput").value != "") {
@@ -93,9 +97,13 @@ export class SettingsRenderer {
         newIcon.value = b64Decode(currentUserInfo.b64IconUrl);
         newBanner.value = b64Decode(currentUserInfo.b64BannerUrl);
 
-        document.getElementById("settingsUserCancelButton").onclick = ()=>{this.#renderUserInfoSettings();}
+        document.getElementById("settingsUserCancelButton").onclick = (event)=>{
+            this.#renderUserInfoSettings();
+            event.stopImmediatePropagation();
+        }
         document.getElementById("settingsUserSaveButton").onclick = ()=>{
             this.#renderUserInfoSettings();
+            event.stopImmediatePropagation();
         }
 
         
@@ -125,9 +133,10 @@ export class SettingsRenderer {
             const removeBtn = document.createElement("div");
             removeBtn.classList.add("nemu-block");
             removeBtn.textContent = "-";
-            removeBtn.addEventListener("click", () => {
+            removeBtn.addEventListener("click", (event) => {
                 guildManager.removeGuild(guild.getId());
                 this.#renderGuildList();
+                event.stopImmediatePropagation();
             })
             buttonsTd.appendChild(removeBtn);
         }

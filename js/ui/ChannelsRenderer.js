@@ -12,7 +12,8 @@ export class ChannelsRenderer {
         this.#chatHeader = document.getElementById("chatHeader");
         this.#channelsPanel = document.getElementById("channelsPanel");
 
-        this.#chatHeader.addEventListener("click", () => {
+        this.#chatHeader.addEventListener("click", (event) => {
+            event.stopImmediatePropagation();
             this.#channelsPanel.classList.toggle("collapsed");
             document.querySelector(".servers-panel").classList.toggle("collapsed");
             if (this.#channelsPanel.classList.contains("collapsed")) {return;}

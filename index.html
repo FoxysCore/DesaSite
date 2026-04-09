@@ -138,7 +138,7 @@ span {
           <!-- Список серверов будет добавляться здесь динамически -->
         </div>
         <div class="server-separator"></div>
-        <div id="settingsButton" class="server-icon" onclick="document.getElementById('settingsMenu').classList.toggle('open')">
+        <div id="settingsButton" class="server-icon">
           <img src="https://s1.iconbird.com/ico/2013/12/505/w450h4001385925286Settings.png">
         </div>
 
@@ -218,6 +218,7 @@ span {
                 <td>Название</td>
                 <td>Адрес</td>
                 <td>Состояние</td>
+                <td>Действия</td>
               </tr>
             </thead>
             <tbody id="settingsGuildTable">
@@ -225,7 +226,7 @@ span {
             </tbody>
           </table>
         </div>
-        <div class="menu-block">
+        <div class="menu-block settings-guild-input-block">
           <input class="settings-guild-ip-input" id="settingsGuildIpInput">
           <div class="menu-block" id="settingsAddGuildBtn">Добавить</div>
         </div>
