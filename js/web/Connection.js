@@ -29,6 +29,7 @@ export class Connection {
         console.log(`Connecting to ${this.#address} (attempt ${11 - this.#connectionAttempts})`);
         
         this.#socket = new WebSocket(this.#address);
+        this.#socket.binaryType = 'arraybuffer';
 
         // --- Логика Timeout ---
         this.#connectTimer = setTimeout(() => {
@@ -57,8 +58,9 @@ export class Connection {
 
         this.#socket.onmessage = (event) => {
             console.log("\n".repeat(5) + "#".repeat(30));
-            console.log("size:", new TextEncoder().encode(event.data).length, "bytes");
-            console.log("Received message:", event.data);
+            console.log("byteSize: ", event.data.byteLength)
+            console.log("size: ", new TextEncoder().encode(event.data).length, "bytes");
+            console.log("Received message: ", event.data);
             try {
                 const data = JSON.parse(event.data);
                 console.log("decoded:", data);
@@ -165,4 +167,11 @@ export class Connection {
             renderer.setGuildConnectionState(this.#guild.getId(), state);
         }
     }
+}
+
+
+async function decompress(arrayBuffer) {
+    const ds = new DecompressionStream("gzip");
+    const decompressedStream = new Response(arrayBuffer).body.pipeThrough(ds);
+    return await new Response(decompressedStream).arrayBuffer();
 }
