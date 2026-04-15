@@ -131,4 +131,12 @@ export class PackageRouter {
         return message;
     }
     
+
+
+
+
+    routeBytePackage(byteBuffer) {
+        const type = byteBuffer.getShort();
+        console.log(type);
+    }
 }

@@ -1,4 +1,5 @@
 import {ConnectionState} from "./ConnectionState.js";
+import {ByteBuffer} from "../utils/ByteBuffer.js"
 
 export class Connection {
     #address;
@@ -69,6 +70,7 @@ export class Connection {
                 }
                 this.#guild.getPackageRouter().routePackage(data);
             } catch (e) {
+                this.#guild.getPackageRouter().routeBytePackage(ByteBuffer.wrap(new Int8Array(event.data)));
                 console.error("Error parsing message:", e);
             }
         };
