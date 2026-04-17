@@ -3,5 +3,6 @@
 export const ChannelType = Object.freeze({
     TEXT: "TEXT",
     VOICE: "VOICE",
-    CATEGORY: "CATEGORY"
+    CATEGORY: "CATEGORY",
+    CUSTOM: "CUSTOM"
 });

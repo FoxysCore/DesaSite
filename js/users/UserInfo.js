@@ -1,4 +1,5 @@
 import {b64Encode} from "../utils/base64.js"
+import { getByteLengthStrSize, getShortLengthStrSize } from "../utils/byteStringUtils.js";
 
 export class UserInfo {
     #displayName;
@@ -160,5 +161,32 @@ export class UserInfo {
             b64BannerUrl: b64Encode(this.#bannerUrl),
             updateTimeStamp: this.#updateTimestamp
         }
+    }
+
+
+    updateFromBytes(buffer) {
+        this.update(
+            buffer.getByteLengthString(), 
+            buffer.getShortLengthString(), 
+            buffer.getByteLengthString(), 
+            buffer.getByteLengthString(),
+            buffer.getLong()
+        );
+    }
+
+
+    getByteSize() {
+        return getByteLengthStrSize(this.getDisplayName()) + 
+            getShortLengthStrSize(this.getDescription()) + 
+            getByteLengthStrSize(this.getIconUrl())+ 
+            getByteLengthStrSize(this.getBannerUrl()) + 8;
+    }
+
+    putInto(buffer) {
+        buffer.putByteLengthString(this.getDisplayName());
+        buffer.putShortLengthString(this.getDescription());
+        buffer.putByteLengthString(this.getIconUrl());
+        buffer.putByteLengthString(this.getBannerUrl());
+        buffer.putLong(this.getUpdateTimestamp());
     }
 }

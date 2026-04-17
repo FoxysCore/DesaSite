@@ -229,6 +229,59 @@ export class ByteBuffer {
         return value;
     }
 
+    getByteLengthString(encoding = 'utf-8') {
+        if (this._position + 1 > this._limit) {
+            throw new Error('Buffer underflow: cannot read string length');
+        }
+        
+        const length = this.getUByte(); // Читаем длину как unsigned byte
+        
+        if (length === 0) {
+            return '';
+        }
+        
+        if (this._position + length > this._limit) {
+            throw new Error('Buffer underflow: string data truncated');
+        }
+        
+        // Читаем байты строки
+        const bytes = new Uint8Array(length);
+        for (let i = 0; i < length; i++) {
+            bytes[i] = this.getUByte();
+        }
+        
+        // Декодируем байты в строку
+        const decoder = new TextDecoder(encoding);
+        return decoder.decode(bytes);
+    }
+
+    // Чтение строки с длиной в 2 байта (максимальная длина 65535 символов)
+    getShortLengthString(encoding = 'utf-8') {
+        if (this._position + 2 > this._limit) {
+            throw new Error('Buffer underflow: cannot read string length');
+        }
+        
+        const length = this.getUShort(); // Читаем длину как unsigned short
+        
+        if (length === 0) {
+            return '';
+        }
+        
+        if (this._position + length > this._limit) {
+            throw new Error('Buffer underflow: string data truncated');
+        }
+        
+        // Читаем байты строки
+        const bytes = new Uint8Array(length);
+        for (let i = 0; i < length; i++) {
+            bytes[i] = this.getUByte();
+        }
+        
+        // Декодируем байты в строку
+        const decoder = new TextDecoder(encoding);
+        return decoder.decode(bytes);
+    }
+
     // Чтение по абсолютной позиции
     getByteAt(index) {
         if (index < 0 || index >= this._limit) {
@@ -278,6 +331,29 @@ export class ByteBuffer {
         
         return high * 0x100000000 + low;
     }
+
+        // Чтение строки с длиной в 1 байт по указанной позиции
+    getByteLengthStringAt(index, encoding = 'utf-8') {
+        const oldPosition = this._position;
+        try {
+            this._position = index;
+            return this.getByteLengthString(encoding);
+        } finally {
+            this._position = oldPosition;
+        }
+    }
+
+    // Чтение строки с длиной в 2 байта по указанной позиции
+    getShortLengthStringAt(index, encoding = 'utf-8') {
+        const oldPosition = this._position;
+        try {
+            this._position = index;
+            return this.getShortLengthString(encoding);
+        } finally {
+            this._position = oldPosition;
+        }
+    }
+
 
     // Запись примитивных типов на текущую позицию
     put(value) {
@@ -399,6 +475,46 @@ export class ByteBuffer {
         this._position += 8;
         return this;
     }
+    putByteLengthString(str, encoding = 'utf-8') {
+        // Кодируем строку в байты
+        const encoder = new TextEncoder();
+        const bytes = encoder.encode(str);
+        
+        if (bytes.length > 255) {
+            throw new Error(`String too long: ${bytes.length} bytes exceeds maximum 255 for byte length prefix`);
+        }
+        
+        // Записываем длину (1 байт)
+        this.putUByte(bytes.length);
+        
+        // Записываем байты строки
+        for (let i = 0; i < bytes.length; i++) {
+            this.putUByte(bytes[i]);
+        }
+        
+        return this;
+    }
+
+    // Запись строки с длиной в 2 байта
+    putShortLengthString(str, encoding = 'utf-8') {
+        // Кодируем строку в байты
+        const encoder = new TextEncoder();
+        const bytes = encoder.encode(str);
+        
+        if (bytes.length > 65535) {
+            throw new Error(`String too long: ${bytes.length} bytes exceeds maximum 65535 for short length prefix`);
+        }
+        
+        // Записываем длину (2 байта)
+        this.putUShort(bytes.length);
+        
+        // Записываем байты строки
+        for (let i = 0; i < bytes.length; i++) {
+            this.putUByte(bytes[i]);
+        }
+        
+        return this;
+    }
 
     // Запись по абсолютной позиции
     putByteAt(index, value) {
@@ -440,6 +556,29 @@ export class ByteBuffer {
         }
         return this;
     }
+
+
+    putByteLengthStringAt(index, str, encoding = 'utf-8') {
+        const oldPosition = this._position;
+        try {
+            this._position = index;
+            return this.putByteLengthString(str, encoding);
+        } finally {
+            this._position = oldPosition;
+        }
+    }
+
+    // Запись строки с длиной в 2 байта по указанной позиции
+    putShortLengthStringAt(index, str, encoding = 'utf-8') {
+        const oldPosition = this._position;
+        try {
+            this._position = index;
+            return this.putShortLengthString(str, encoding);
+        } finally {
+            this._position = oldPosition;
+        }
+    }
+
 
     // Работа с массивом байт
     getBytes(dst, offset, length) {
@@ -533,21 +672,3 @@ export class ByteBuffer {
         return this;
     }
 }
-
-// Пример использования
-const buffer = ByteBuffer.allocate(16);
-buffer.putInt(100);
-buffer.putShort(200);
-buffer.putByte(50);
-buffer.flip();
-
-console.log(buffer.getInt());  // 100
-console.log(buffer.getShort()); // 200
-console.log(buffer.getByte());  // 50
-
-// Работа с порядком байт
-buffer.clear();
-buffer.order('LITTLE_ENDIAN');
-buffer.putInt(0x12345678);
-buffer.flip();
-console.log(buffer.getInt().toString(16)); // 78563412

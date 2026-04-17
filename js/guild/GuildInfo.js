@@ -135,4 +135,14 @@ export class GuildInfo {
         this.#iconElement.src = this.iconUrl;
         this.#bannerElement.src = this.bannerUrl;
     }
+
+
+    updateFromBytes(buffer) {
+        this.update(
+            buffer.getByteLengthString(), 
+            buffer.getShortLengthString(), 
+            buffer.getByteLengthString(), 
+            buffer.getByteLengthString()
+        );
+    }
 }

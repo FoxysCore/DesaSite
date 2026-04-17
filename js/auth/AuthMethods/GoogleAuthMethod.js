@@ -27,13 +27,26 @@ export class GoogleAuthMethod extends AuthMethod{
     }
 
     auth(payload) {
-        this.getAuthManager().getGuild().getConnection().sendPackage({
-                    type: "AUTH",
-                    authMethodName: this.getName(),
-                    userInfo: this.getAuthManager().getGuild().getGuildManager().getCore().getSettingsManager().getClientSettings().getCurrentUserInfo(),
-                    authData: {
-                        code: payload.code
-                    }
-                });
+        this.getAuthManager().getGuild().getConnection().getPackageSender().sendAuthPackage(
+            this,
+            this
+                .getAuthManager()
+                .getGuild()
+                .getGuildManager()
+                .getCore()
+                .getSettingsManager()
+                .getClientSettings()
+                .getUserInfo(),
+            {code: payload.code}
+        )
+
+        //this.getAuthManager().getGuild().getConnection().sendPackage({
+        //            type: "AUTH",
+        //            authMethodName: this.getName(),
+        //            userInfo: this.getAuthManager().getGuild().getGuildManager().getCore().getSettingsManager().getClientSettings().getCurrentUserInfo(),
+        //            authData: {
+        //                code: payload.code
+        //            }
+        //        });
     }
 }

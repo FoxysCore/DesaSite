@@ -1,6 +1,6 @@
 import { ContentBlockType } from "../messages/contentBlocks/ContentBlockType.js";
-import { UserMessage } from "../messages/messages/UserMessage.js";
-import { TextContentBlock } from "../messages/contentBlocks/TextContentBlock.js";
+import { UserMessage } from "../messages/messages/Message.js";
+import { TextContentBlock } from "../messages/contentBlocks/ContentBlock.js";
 
 export class MessagesRenderer {
     #renderer;
@@ -10,8 +10,7 @@ export class MessagesRenderer {
     #olderObserver = null;
     #newerObserver = null;
 
-    #olderCanUpdate = true;
-    #newerCanUpdate = true;
+    #scrollEventLock = false;
 
     constructor(renderer) {
         this.#renderer = renderer;
@@ -33,7 +32,7 @@ export class MessagesRenderer {
             const channel = this.#renderer.getChannelsRenderer().getSelectedChannel();
             const user = channel.getRootCategory().getGuild().getUserManager().getCurrentUser();
 
-            const message = new UserMessage(0, user.getId(), channel.getId());
+            const message = new UserMessage(channel.getId(), 0, user.getId());
 
             if (content) {
                 message.addContentBlock(new TextContentBlock(content));
@@ -50,10 +49,8 @@ export class MessagesRenderer {
         this.#olderObserver = new IntersectionObserver((entries) => {
             for (const entry of entries) {
                 if (entry.isIntersecting) {
-                    if (!this.#olderCanUpdate) {return;}
-                    this.#olderCanUpdate = false;
+                    if (this.#scrollEventLock) {return;}
                     this.#loadOlderMessages();
-                    requestAnimationFrame(() => {this.#olderCanUpdate = true;});
                     return;
                 }
             }
@@ -65,10 +62,8 @@ export class MessagesRenderer {
         this.#newerObserver = new IntersectionObserver((entries) => {
             for (const entry of entries) {
                 if (entry.isIntersecting) {
-                    if (!this.#newerCanUpdate) {return;}
-                    this.#newerCanUpdate = false;
+                    if (this.#scrollEventLock) {return;}
                     this.#loadNewerMessages();
-                    requestAnimationFrame(() => {this.#newerCanUpdate = true;});
                     return;
                 }
             }
@@ -141,6 +136,7 @@ export class MessagesRenderer {
         const firstMessage = this.#messagesArea.lastChild; // самый старый (визуально вверху)
         let timestamp = firstMessage ? parseInt(firstMessage.dataset.timestamp) : 0;
 
+        this.#scrollEventLock = true;
         const scrollTopBefore = this.#messagesArea.scrollTop;
 
         for (let i = 0; i < 20; i++) {
@@ -152,6 +148,7 @@ export class MessagesRenderer {
 
         // Если ничего не добавили — выходим
         if (timestamp === 0 || (firstMessage && timestamp === parseInt(firstMessage.dataset.timestamp))) {
+            this.#scrollEventLock = false;
             return;
         }
 
@@ -165,7 +162,7 @@ export class MessagesRenderer {
             const scrollAdjust = this.#messagesArea.scrollHeight + scrollTopBefore;
 
             // Обрезаем до 40 сообщений (удаляем самые новые, если нужно)
-            while (this.#messagesArea.childElementCount > 40) {
+            while (this.#messagesArea.childElementCount > 50) {
                 this.#messagesArea.firstChild.remove();
             }
 
@@ -183,6 +180,7 @@ export class MessagesRenderer {
 
                 this.#updateRenderedRange();
                 this.#setupObservers();
+                this.#scrollEventLock = false;
             });
         });
     }
@@ -191,6 +189,8 @@ export class MessagesRenderer {
         const channel = this.#renderer.getChannelsRenderer().getSelectedChannel();
         const firstMessage = this.#messagesArea.firstChild; // самый новый (визуально внизу)
         let timestamp = firstMessage ? parseInt(firstMessage.dataset.timestamp) : 0;
+
+        this.#scrollEventLock = true;
 
         const scrollAdjustBefore = this.#messagesArea.scrollHeight + this.#messagesArea.scrollTop;
 
@@ -203,6 +203,7 @@ export class MessagesRenderer {
 
         // Если ничего не добавили — выходим
         if (timestamp === 0 || (firstMessage && timestamp === parseInt(firstMessage.dataset.timestamp))) {
+            this.#scrollEventLock = false;
             return;
         }
 
@@ -216,7 +217,7 @@ export class MessagesRenderer {
             const scrollTopAfterAdd = this.#messagesArea.scrollTop;
 
             // Обрезаем до 40 сообщений (удаляем самые старые)
-            while (this.#messagesArea.childElementCount > 40) {
+            while (this.#messagesArea.childElementCount > 50) {
                 this.#messagesArea.lastChild.remove();
             }
 
@@ -229,6 +230,7 @@ export class MessagesRenderer {
 
                 this.#updateRenderedRange();
                 this.#setupObservers();
+                this.#scrollEventLock = false;
             });
         });
     }

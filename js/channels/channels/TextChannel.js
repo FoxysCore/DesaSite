@@ -49,10 +49,20 @@ export class TextChannel extends Channel {
 
 
     sendMessage(message) {
-        this.getRootCategory().getGuild().getConnection().sendPackage({
-            type: "MESSAGE_SEND",
-            message: message.json()
-        });
+        this
+            .getRootCategory()
+            .getGuild()
+            .getConnection()
+            .getPackageSender()
+            .sendMessageSendPkg(
+                message
+            )
+
+
+        //this.getRootCategory().getGuild().getConnection().sendPackage({
+        //    type: "MESSAGE_SEND",
+        //    message: message.json()
+        //});
     }
 
 
@@ -139,12 +149,16 @@ export class TextChannel extends Channel {
 
 
     #fetchMessages(startTimestamp, count) {
-        this.getRootCategory().getGuild().getConnection().sendPackage({
-            type: "MESSAGE_REQUEST",
-            channelId: this.getId(),
-            startTimestamp: startTimestamp,
-            count: count
-        });
+        this
+            .getRootCategory()
+            .getGuild()
+            .getConnection()
+            .getPackageSender()
+            .sendMessagesRequestPkg(
+                this, 
+                startTimestamp, 
+                count
+            )
     }
 
 

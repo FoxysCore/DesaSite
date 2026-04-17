@@ -1,9 +1,11 @@
 import {ConnectionState} from "./ConnectionState.js";
 import {ByteBuffer} from "../utils/ByteBuffer.js"
+import { PackageSender } from "./packages/PackageSender.js";
 
 export class Connection {
     #address;
     #guild;
+    #packageSender;
     #state = ConnectionState.DISCONNECTED;
     #socket = null;
     #connectionAttempts = 10;
@@ -12,6 +14,11 @@ export class Connection {
     constructor(guild, address) {
         this.#guild = guild;
         this.#address = address;
+        this.#packageSender = new PackageSender(this);
+    }
+
+    getPackageSender() {
+        return this.#packageSender;
     }
 
     connect() {
@@ -59,19 +66,23 @@ export class Connection {
 
         this.#socket.onmessage = (event) => {
             console.log("\n".repeat(5) + "#".repeat(30));
-            console.log("byteSize: ", event.data.byteLength)
-            console.log("size: ", new TextEncoder().encode(event.data).length, "bytes");
             console.log("Received message: ", event.data);
             try {
                 const data = JSON.parse(event.data);
+
+            console.log("size: ", new TextEncoder().encode(event.data).length, "bytes");
                 console.log("decoded:", data);
-                if (data.type == 'AUTH_SUCCESS') {
-                    this.#setState(ConnectionState.AUTHENTICATED);
-                }
                 this.#guild.getPackageRouter().routePackage(data);
             } catch (e) {
-                this.#guild.getPackageRouter().routeBytePackage(ByteBuffer.wrap(new Int8Array(event.data)));
-                console.error("Error parsing message:", e);
+                console.log(e);
+                console.log("byteSize: ", event.data.byteLength);
+                const ret = this
+                                .#guild
+                                .getPackageRouter()
+                                .routeBytePackage(
+                                    ByteBuffer.wrap(new Int8Array(event.data))
+                                );
+                if (ret === 4) {this.#setState(ConnectionState.AUTHENTICATED);}
             }
         };
 
@@ -151,6 +162,10 @@ export class Connection {
         
         let json = JSON.stringify(pkg);
         this.#socket.send(json);
+    }
+
+    sendBytePackage(buffer) {
+        this.#socket.send(buffer.toArrayBuffer());
     }
 
     getState() {

@@ -1,10 +1,21 @@
 import { User } from "./User.js";
+import { UserState } from "./UserState.js"
+
+
+class CurrentUser extends User {
+    constructor(id, info) {
+        super(id, UserState.ONLINE);
+        this._info = info;
+    }
+}
+
+
 
 export class UserManager {
     #guild;
     #users = new Map();
-
-    #currentUserId = null;
+    #currentUser = null;
+    
 
     constructor(guild) {
         this.#guild = guild;
@@ -16,8 +27,18 @@ export class UserManager {
         return user;
     }
 
-    getUser(id) {
-        return this.#users.get(id);
+    getUser(id, safe = true) {
+        let user = this.#users.get(id);
+        if (!user && safe) {
+            user = new User(id, UserState.OFFLINE);
+            user.getInfo().update(
+                "Неизвестный пользователь",
+                "Пользователь был удалён",
+                "./favicon.ico",
+                "./favicon.ico"
+            )
+        }
+        return user;
     }
 
     removeUser(id) {
@@ -29,12 +50,22 @@ export class UserManager {
     }
 
     setCurrentUser(id) {
-        this.#currentUserId = id;
+        this.#currentUser = new CurrentUser(
+            id, 
+            this
+                .#guild
+                .getGuildManager()
+                .getCore()
+                .getSettingsManager()
+                .getClientSettings()
+                .getUserInfo()
+        )
+        this.#users.set(id, this.#currentUser);
+        return this.#currentUser;
     }
 
     getCurrentUser() {
-        console.log("Получение текущего пользователя:", this.#users.get(this.#currentUserId));
-        return this.#users.get(this.#currentUserId);
+        return this.#currentUser;
     }
 
     removeRoleForEveryone(role) {

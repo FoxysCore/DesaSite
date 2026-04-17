@@ -8,17 +8,17 @@ export class Category extends Channel {
 
     getType() {return ChannelType.CATEGORY;}
 
-    createChild(channelType, id, channelInfo) {
+    createChild(channelType, id) {
         let newChannel;
         switch (channelType) {
             case ChannelType.TEXT:
-                newChannel = new TextChannel(this._rootCategory, id, this, channelInfo);
+                newChannel = new TextChannel(this._rootCategory, id, this);
                 break;
             case ChannelType.VOICE:
-                newChannel = new VoiceChannel(this._rootCategory, id, this, channelInfo);
+                newChannel = new VoiceChannel(this._rootCategory, id, this);
                 break;
             case ChannelType.CATEGORY:
-                newChannel = new Category(this._rootCategory, id, this, channelInfo);
+                newChannel = new Category(this._rootCategory, id, this);
                 break;
             default:
                 throw new Error('Invalid channel type: ' + channelType);
