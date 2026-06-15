@@ -67,23 +67,15 @@ export class Connection {
         this.#socket.onmessage = (event) => {
             console.log("\n".repeat(5) + "#".repeat(30));
             console.log("Received message: ", event.data);
-            try {
-                const data = JSON.parse(event.data);
 
-            console.log("size: ", new TextEncoder().encode(event.data).length, "bytes");
-                console.log("decoded:", data);
-                this.#guild.getPackageRouter().routePackage(data);
-            } catch (e) {
-                console.log(e);
-                console.log("byteSize: ", event.data.byteLength);
-                const ret = this
-                                .#guild
-                                .getPackageRouter()
-                                .routeBytePackage(
-                                    ByteBuffer.wrap(new Int8Array(event.data))
-                                );
-                if (ret === 4) {this.#setState(ConnectionState.AUTHENTICATED);}
-            }
+            console.log("byteSize: ", event.data.byteLength);
+            const ret = this
+                            .#guild
+                            .getPackageRouter()
+                            .routeBytePackage(
+                                ByteBuffer.wrap(new Int8Array(event.data))
+                            );
+            if (ret === 4) {this.#setState(ConnectionState.AUTHENTICATED);}
         };
 
         this.#socket.onclose = () => {

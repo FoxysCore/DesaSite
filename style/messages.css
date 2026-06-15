@@ -12,12 +12,6 @@
     color: var(--color-text);
 }
 
-.content-block.TEXT {
-    color: var(--color-muted);
-    line-height: 1.4;
-    word-break: break-word;
-}
-
 .message-avatar img {
     width: 100%;
     height: 100%;
@@ -50,6 +44,84 @@
     background: var(--color-bg-hover);
     border-color: var(--color-border-hover);
 }
+
+
+.content-block {
+    margin-bottom: 0.25rem;
+}
+
+
+.content-block.TEXT {
+    color: var(--color-muted);
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+
+/* Главный контейнер (теперь Grid) */
+.content-block.FILE {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    background-color: var(--color-bg-element);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    max-width: 100%;        /* Жесткий лимит по ширине родителя */
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.content-block.FILE:hover {
+  background-color: var(--color-bg-hover);
+  border-color: var(--color-border-hover);
+}
+
+.content-block.FILE:active {
+  background-color: var(--color-bg-active);
+  border-color: var(--color-border-active);
+}
+
+/* Иконка */
+.content-block.FILE .file-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background-color: var(--color-bg-hover);
+  color: var(--color-primary);
+  border-radius: 6px;
+}
+
+/* Контейнер для текста */
+.content-block.FILE .file-details {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Обязательно для Grid-колонки, чтобы обрезать содержимое */
+}
+
+/* Имя файла */
+.content-block.FILE .file-name {
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Размер файла */
+.content-block.FILE .file-size {
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+
 
 @keyframes message-fade-in {
     to {

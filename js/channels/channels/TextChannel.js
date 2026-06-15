@@ -57,20 +57,15 @@ export class TextChannel extends Channel {
             .sendMessageSendPkg(
                 message
             )
-
-
-        //this.getRootCategory().getGuild().getConnection().sendPackage({
-        //    type: "MESSAGE_SEND",
-        //    message: message.json()
-        //});
     }
 
 
     reciveHistoryMessage(message) {
-        this.#lastMessageTimestamp = Math.max(
-            this.#lastMessageTimestamp,
-            message.getTimestamp()
-        );
+
+
+        if (message.getTimestamp() > this.#lastMessageTimestamp) {
+            this.#lastMessageTimestamp = message.getTimestamp();
+        }
 
 
         if (this.#messages.length === 0) {

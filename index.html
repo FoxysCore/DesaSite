@@ -3,6 +3,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>project DESA v 5_ALPHA</title>
+  <script src="https://cdn.jsdelivr.net/npm/hash-wasm@4.11.0/dist/sha256.umd.min.js"></script>
   <link rel="icon" href="./favicon.ico" type="image/x-icon"/>
   <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon"/>
   <link rel="stylesheet" href="style/servers.css"/>
@@ -161,6 +162,7 @@ span {
     <div class="message-input-container" id="messageInputContainer">
       <button class="attach-btn" id="attachBtn">+</button>
       <textarea class="message-input-field" placeholder="Сообщение #общий" rows="1"></textarea>
+      <input type="file" id="fileInput" style="display: none;">
       <button class="send-btn">➤</button>
     </div>
   </div>
@@ -251,6 +253,8 @@ span {
       if (event.origin !== window.origin) {return;}
       if (event.data.type != "AUTH") {return;}
 
+      console.log(event.data.guildId);
+
       core
         .getGuildManager()
         .getGuild(event.data.guildId)
@@ -278,24 +282,6 @@ span {
     const userProfile = document.getElementById('userProfile');
     const closeProfileBtn = document.getElementById('closeProfile');
 
-
-    messagesArea.addEventListener('click', (e) => {
-      if (e.target.closest('.message')) {
-        userProfile.classList.add('open');
-      }
-    });
-
-    closeProfileBtn.addEventListener('click', () => {
-      userProfile.classList.remove('open');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (userProfile.classList.contains('open') && 
-          !userProfile.contains(e.target) && 
-          !e.target.closest('.message')) {
-        userProfile.classList.remove('open');
-      }
-    });
 
     messageInput.addEventListener('input', () => {
       attachBtn.classList.toggle('hidden', messageInput.value.trim() !== '');

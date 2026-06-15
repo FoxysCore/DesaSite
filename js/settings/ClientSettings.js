@@ -1,5 +1,6 @@
 import { UserInfo } from "../users/UserInfo.js";
 import { b64Encode, b64Decode } from "../utils/base64.js"
+import { ByteBuffer } from "../utils/ByteBuffer.js";
 
 
 class CurrenUserInfo extends UserInfo {
@@ -9,20 +10,22 @@ class CurrenUserInfo extends UserInfo {
         if (str === null) {
             this.update("NewDesaUser", "Please, update your profile :)", "./favicon.ico", "./favicon.ico", 1);
         } else {
-            const infoJson = JSON.parse(str);
-            super.update(
-                b64Decode(infoJson.b64DisplayName),
-                b64Decode(infoJson.b64Description),
-                b64Decode(infoJson.b64IconUrl),
-                b64Decode(infoJson.b64BannerUrl),
-                infoJson.updateTimeStamp
+            this.updateFromBytes(
+                ByteBuffer.fromHexString(localStorage.getItem("currentUserInfo"))
             )
         }
     }
 
     update(displayName, description, iconUrl, bannerUrl, updateTimestamp) {
         super.update(displayName, description, iconUrl, bannerUrl, updateTimestamp);
-        localStorage.setItem("currentUserInfo", JSON.stringify(this.json()))
+
+        const buffer = ByteBuffer.allocate(this.getByteSize());
+        this.putInto(buffer);
+
+        localStorage.setItem("currentUserInfo", buffer.toHexString())
+
+
+
     }
 }
 
@@ -45,16 +48,7 @@ export class ClientSettings {
     setCurrentUserInfo(info) {} 
 
     getCurrentUserInfo() {
-        const str = localStorage.getItem("currentUserInfo");
-        if (str === null) {return {
-            b64DisplayName: "TmV3RGVzYVVzZXI=",
-            b64Description: "UGxlYXNlLCB1cGRhdGUgeW91ciBwcm9maWxlIDop",
-            b64IconUrl: "Li9mYXZpY29uLmljbw==",
-            b64BannerUrl: "Li9mYXZpY29uLmljbw==",
-            updateTimeStamp: 1
-        };}
-
-        return JSON.parse(str);
+        return this.#currentUserInfo;
     }
 
     getUserInfo() {

@@ -153,17 +153,6 @@ export class UserInfo {
     }
 
 
-    json() {
-        return {
-            b64DisplayName: b64Encode(this.#displayName),
-            b64Description: b64Encode(this.#description),
-            b64IconUrl: b64Encode(this.#iconUrl),
-            b64BannerUrl: b64Encode(this.#bannerUrl),
-            updateTimeStamp: this.#updateTimestamp
-        }
-    }
-
-
     updateFromBytes(buffer) {
         this.update(
             buffer.getByteLengthString(), 

@@ -5,6 +5,8 @@
 //"userId": ""
 //}
 
+import { Hash } from "../utils/Hash.js"
+
 
 
 export class GuildSettings {
@@ -73,17 +75,17 @@ export class GuildSettings {
         const list = this.getGuildInfos();
         for (const guild of list) {
             if (guild.id === id) {
-                return guild.userId;
+                return Hash.fromHexString(guild.userId);
             }
         }
-        return "";
+        return null;
     }
 
     setGuildUserId(id, userId) {
         const list = this.getGuildInfos();
         for (const guild of list) {
             if (guild.id === id) {
-                guild.userId = userId;
+                guild.userId = userId.toHexString();
             }
         }
         this.#writeGuildList(list);

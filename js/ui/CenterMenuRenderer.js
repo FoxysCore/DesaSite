@@ -32,4 +32,13 @@ export class CenterMenuRenderer{
 
         this.#centerMenu.classList.add("open");
     }
+
+    openFileNotFound(filename) {
+        this.close();
+        const div = document.createElement("div");
+        div.classList.add("menu-block");
+        div.textContent = `Файл ${filename} не был найден на сервере.\nВозможно, он был удалён или более недоступен в этом чате.`
+        this.#centerMenu.appendChild(div);
+        this.#centerMenu.classList.add("open");
+    }
 }

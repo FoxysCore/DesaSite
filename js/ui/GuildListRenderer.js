@@ -23,7 +23,6 @@ export class GuildListRenderer {
             e.stopPropagation();
             this.#renderer.getRightMenuRenderer().openGuildInfo(this.getSelectedGuild());
         });
-
     }
 
     createGuild(guild) {

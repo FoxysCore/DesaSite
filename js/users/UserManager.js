@@ -23,12 +23,12 @@ export class UserManager {
 
     createUser(id, state) {
         const user = new User(id, state);
-        this.#users.set(id, user);
+        this.#users.set(id.toHexString(), user);
         return user;
     }
 
     getUser(id, safe = true) {
-        let user = this.#users.get(id);
+        let user = this.#users.get(id.toHexString());
         if (!user && safe) {
             user = new User(id, UserState.OFFLINE);
             user.getInfo().update(
@@ -42,7 +42,7 @@ export class UserManager {
     }
 
     removeUser(id) {
-        this.#users.delete(id);
+        this.#users.delete(id.toHexString());
     }
 
     getAllUsers() {
@@ -60,7 +60,7 @@ export class UserManager {
                 .getClientSettings()
                 .getUserInfo()
         )
-        this.#users.set(id, this.#currentUser);
+        this.#users.set(id.toHexString(), this.#currentUser);
         return this.#currentUser;
     }
 

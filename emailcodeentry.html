@@ -1,0 +1,30 @@
+<!-- callback.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Авторизация...</title>
+</head>
+<body>
+  <p>Введите код из Email</p>
+  <textarea id="data-input"></textarea>
+  <button onclick="tryToSend();">sent</button>
+  <script>
+
+    function tryToSend() {
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const guildId = JSON.parse(urlParams.get('guildid'));
+      console.log(guildId);
+
+      window.opener.postMessage(
+        {type: "AUTH", guildId: guildId, authMethodName: "EmailAuthMethod", payload: {code: document.getElementById("data-input").value}},
+        window.location.origin
+      );
+      setTimeout(
+        window.close,
+        1000
+      )
+    }
+  </script>
+</body>
+</html>

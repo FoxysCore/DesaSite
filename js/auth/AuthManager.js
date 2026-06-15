@@ -1,5 +1,6 @@
 import {GoogleAuthMethod} from "./AuthMethods/GoogleAuthMethod.js"
 import {SessionTokenAuthMethod} from "./AuthMethods/SessionTokenAuthMethod.js"
+import { EmailAuthMethod } from "./AuthMethods/EmailAuthMethod.js";
 
 export class AuthManager {
     #guild;
@@ -19,15 +20,19 @@ export class AuthManager {
         return this.#methods.values();
     }
 
-    addMethod(methodName, payload) {
+    addMethod(methodName, serverPayload) {
         let method = null;
         switch (methodName) {
             case "defaultSessionTokenAuthMethod":
-                method = new SessionTokenAuthMethod(this, payload);
+                method = new SessionTokenAuthMethod(this, serverPayload);
                 break;
 
-            case "defaultGoogleAuthMethod":
-                method = new GoogleAuthMethod(this, payload);
+            case "GoogleAuthMethod":
+                method = new GoogleAuthMethod(this, serverPayload);
+                break;
+
+            case "EmailAuthMethod":
+                method = new EmailAuthMethod(this, serverPayload);
                 break;
 
             default: return;

@@ -11,17 +11,17 @@ export class PackageSender {
 
     sendAuthPackage(authMethod, userInfo, payload) {
 
-        const payloadString = JSON.stringify(payload); 
-
         let size = 2 + getByteLengthStrSize(authMethod.getName()) + 
             userInfo.getByteSize() + 
-            getShortLengthStrSize(payloadString);
+            payload.limit;
         
         const buffer = ByteBuffer.allocate(size);
         buffer.putShort(0);
         buffer.putByteLengthString(authMethod.getName());
         userInfo.putInto(buffer);
-        buffer.putShortLengthString(payloadString);
+        while (payload.limit != payload.position) {
+            buffer.put(payload.get());
+        }
 
         this.#connection.sendBytePackage(buffer);
     }
@@ -41,6 +41,16 @@ export class PackageSender {
         const buffer = ByteBuffer.allocate(size);
         buffer.putShort(5);
         message.putInto(buffer);
+        this.#connection.sendBytePackage(buffer);
+    }
+
+    sendFileRequestPackage(channelId, hash, filename) {
+        const buffer = ByteBuffer.allocate(4 + hash.getByteSize() + getByteLengthStrSize(filename));
+        buffer.putShort(8);
+        buffer.putShort(channelId);
+        hash.putInto(buffer);
+        buffer.putByteLengthString(filename);
+
         this.#connection.sendBytePackage(buffer);
     }
 }

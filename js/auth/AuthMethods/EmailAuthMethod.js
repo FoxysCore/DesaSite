@@ -2,36 +2,53 @@ import { ByteBuffer } from "../../utils/ByteBuffer.js";
 import { getByteLengthStrSize } from "../../utils/byteStringUtils.js";
 import { AuthMethod } from "./AuthMethod.js";
 
-export class GoogleAuthMethod extends AuthMethod{
+export class EmailAuthMethod extends AuthMethod{
 
     #serverClientId;
     #serverRedirectUri;
+    #isEmailSended = false;
 
     constructor(authManager, payload) {
         super(authManager, payload);
-        this.#serverClientId = payload.getByteLengthString();
-        this.#serverRedirectUri = payload.getByteLengthString();
     }
     
     getName() {
-        return "GoogleAuthMethod";
+        return "EmailAuthMethod";
     }
 
     getDisplayName() {
-        return "Google"
+        return "Email"
     }
 
     selectMethod() {
-        console.log(this._payload);
-        const state = JSON.stringify({methodName: this.getName(), guildId: this.getAuthManager().getGuild().getId()});
-        const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${this.#serverClientId}&redirect_uri=${this.#serverRedirectUri}&response_type=code&scope=openid%20email&access_type=offline&prompt=consent&state=${state}`;
+
+        const payload = new ByteBuffer(getByteLengthStrSize("pafytbot5@gmail.com") + 1);
+        payload.put(1);
+        payload.putByteLengthString("pafytbot5@gmail.com");
+        payload.flip();
+
+        if (!this.#isEmailSended) {
+            this.getAuthManager().getGuild().getConnection().getPackageSender().sendAuthPackage(
+                this,
+                this
+                    .getAuthManager()
+                    .getGuild()
+                    .getGuildManager()
+                    .getCore()
+                    .getSettingsManager()
+                    .getClientSettings()
+                    .getUserInfo(),
+                payload
+            );
+            this.#isEmailSended = true;
+        }
         
         const width = 600, height = 700;
         const left = (screen.width - width) / 2;
         const top = (screen.height - height) / 2;
 
         window.open(
-            url,
+            window.location.href + "/emailcodeentry.html?guildid="+JSON.stringify(this.getAuthManager().getGuild().getId()),
             'DesaAuth',
             `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
         );
@@ -39,7 +56,8 @@ export class GoogleAuthMethod extends AuthMethod{
 
     auth(payload) {
 
-        const userPayload = new ByteBuffer(getByteLengthStrSize(payload.code));
+        const userPayload = new ByteBuffer(getByteLengthStrSize(payload.code) + 1);
+        userPayload.put(0);
         userPayload.putByteLengthString(payload.code);
         userPayload.flip();
 

@@ -1,31 +1,26 @@
 export class ByteBuffer {
     constructor(source) {
         if (typeof source === 'number') {
-            // Создание буфера указанной длины
             this.buffer = new ArrayBuffer(source);
             this.view = new DataView(this.buffer);
             this._capacity = source;
         } else if (source instanceof Int8Array) {
-            // Использование существующего Int8Array
             this.buffer = source.buffer;
             this.view = new DataView(this.buffer);
             this._capacity = source.length;
         } else if (source instanceof ArrayBuffer) {
-            // Использование существующего ArrayBuffer
             this.buffer = source;
             this.view = new DataView(this.buffer);
             this._capacity = source.byteLength;
         } else {
             throw new Error('Invalid constructor argument. Expected number, Int8Array, or ArrayBuffer');
         }
-        
         this._position = 0;
         this._limit = this._capacity;
         this._markedPosition = -1;
         this._order = true; // true = big-endian, false = little-endian
     }
 
-    // Статические фабричные методы
     static allocate(capacity) {
         return new ByteBuffer(capacity);
     }
@@ -34,7 +29,37 @@ export class ByteBuffer {
         return new ByteBuffer(array);
     }
 
-    // Геттеры
+    static fromHexString(hexString) {
+        if (typeof hexString !== 'string') {
+            throw new Error('Argument must be a string');
+        }
+
+        // Удаляем префикс 0x и пробелы, если они есть
+        const cleanHex = hexString.replace(/^0x/i, '').replace(/\s/g, '').toLowerCase();
+
+        if (cleanHex.length % 2 !== 0) {
+            throw new Error('Invalid hex string: length must be even');
+        }
+
+        if (!/^[0-9a-f]*$/.test(cleanHex)) {
+            throw new Error('Invalid hex string: contains non-hexadecimal characters');
+        }
+
+        const byteLength = cleanHex.length / 2;
+        const buffer = new ArrayBuffer(byteLength);
+        const bytes = new Uint8Array(buffer);
+
+        for (let i = 0; i < cleanHex.length; i += 2) {
+            bytes[i / 2] = parseInt(cleanHex.substring(i, i + 2), 16);
+        }
+
+        const instance = new ByteBuffer(buffer);
+        // Устанавливаем limit равным capacity, так как мы заполнили весь буфер
+        instance._limit = instance._capacity;
+        
+        return instance;
+    }
+
     get position() {
         return this._position;
     }
@@ -72,7 +97,6 @@ export class ByteBuffer {
         return this.remaining > 0;
     }
 
-    // Управление порядком байт
     order(order) {
         if (order === undefined) {
             return this._order ? 'BIG_ENDIAN' : 'LITTLE_ENDIAN';
@@ -85,7 +109,6 @@ export class ByteBuffer {
         return this;
     }
 
-    // Методы для работы с позицией
     clear() {
         this._position = 0;
         this._limit = this._capacity;
@@ -119,7 +142,6 @@ export class ByteBuffer {
         return this;
     }
 
-    // Чтение примитивных типов с текущей позиции
     get() {
         if (this._position >= this._limit) {
             throw new Error('Buffer underflow');
@@ -186,23 +208,14 @@ export class ByteBuffer {
         return value;
     }
 
+    // === ИСПРАВЛЕНО: Нативная поддержка BigInt для 64-битных чисел ===
     getLong() {
         if (this._position + 8 > this._limit) {
             throw new Error('Buffer underflow');
         }
-        
-        let high, low;
-        if (this._order) {
-            // Big-endian
-            high = this.view.getInt32(this._position);
-            low = this.view.getUint32(this._position + 4);
-        } else {
-            // Little-endian
-            low = this.view.getUint32(this._position);
-            high = this.view.getInt32(this._position + 4);
-        }
-        
-        const value = high * 0x100000000 + low;
+        const value = this._order 
+            ? this.view.getBigInt64(this._position)
+            : this.view.getBigInt64(this._position, true);
         this._position += 8;
         return value;
     }
@@ -234,8 +247,7 @@ export class ByteBuffer {
             throw new Error('Buffer underflow: cannot read string length');
         }
         
-        const length = this.getUByte(); // Читаем длину как unsigned byte
-        
+        const length = this.getUByte();
         if (length === 0) {
             return '';
         }
@@ -244,25 +256,21 @@ export class ByteBuffer {
             throw new Error('Buffer underflow: string data truncated');
         }
         
-        // Читаем байты строки
         const bytes = new Uint8Array(length);
         for (let i = 0; i < length; i++) {
             bytes[i] = this.getUByte();
         }
         
-        // Декодируем байты в строку
         const decoder = new TextDecoder(encoding);
         return decoder.decode(bytes);
     }
-
-    // Чтение строки с длиной в 2 байта (максимальная длина 65535 символов)
+ 
     getShortLengthString(encoding = 'utf-8') {
         if (this._position + 2 > this._limit) {
             throw new Error('Buffer underflow: cannot read string length');
         }
         
-        const length = this.getUShort(); // Читаем длину как unsigned short
-        
+        const length = this.getUShort();
         if (length === 0) {
             return '';
         }
@@ -271,18 +279,15 @@ export class ByteBuffer {
             throw new Error('Buffer underflow: string data truncated');
         }
         
-        // Читаем байты строки
         const bytes = new Uint8Array(length);
         for (let i = 0; i < length; i++) {
             bytes[i] = this.getUByte();
         }
         
-        // Декодируем байты в строку
         const decoder = new TextDecoder(encoding);
         return decoder.decode(bytes);
     }
-
-    // Чтение по абсолютной позиции
+ 
     getByteAt(index) {
         if (index < 0 || index >= this._limit) {
             throw new Error('Index out of bounds');
@@ -315,24 +320,16 @@ export class ByteBuffer {
             : this.view.getInt32(index, true);
     }
 
+    // === ИСПРАВЛЕНО: Нативная поддержка BigInt для 64-битных чисел ===
     getLongAt(index) {
         if (index + 8 > this._limit) {
             throw new Error('Index out of bounds');
         }
-        
-        let high, low;
-        if (this._order) {
-            high = this.view.getInt32(index);
-            low = this.view.getUint32(index + 4);
-        } else {
-            low = this.view.getUint32(index);
-            high = this.view.getInt32(index + 4);
-        }
-        
-        return high * 0x100000000 + low;
+        return this._order 
+            ? this.view.getBigInt64(index)
+            : this.view.getBigInt64(index, true);
     }
 
-        // Чтение строки с длиной в 1 байт по указанной позиции
     getByteLengthStringAt(index, encoding = 'utf-8') {
         const oldPosition = this._position;
         try {
@@ -343,7 +340,6 @@ export class ByteBuffer {
         }
     }
 
-    // Чтение строки с длиной в 2 байта по указанной позиции
     getShortLengthStringAt(index, encoding = 'utf-8') {
         const oldPosition = this._position;
         try {
@@ -354,8 +350,6 @@ export class ByteBuffer {
         }
     }
 
-
-    // Запись примитивных типов на текущую позицию
     put(value) {
         if (this._position + 1 > this._limit) {
             throw new Error('Buffer overflow');
@@ -430,22 +424,19 @@ export class ByteBuffer {
         return this;
     }
 
+    // === ИСПРАВЛЕНО: Нативная поддержка BigInt для 64-битных чисел ===
     putLong(value) {
         if (this._position + 8 > this._limit) {
             throw new Error('Buffer overflow');
         }
-        
-        const high = Math.floor(value / 0x100000000);
-        const low = value >>> 0;
+        // Принудительно преобразуем в BigInt, чтобы поддерживать как BigInt, так и обычные Number (в пределах точности)
+        const bigIntValue = BigInt(value);
         
         if (this._order) {
-            this.view.setInt32(this._position, high);
-            this.view.setUint32(this._position + 4, low);
+            this.view.setBigInt64(this._position, bigIntValue);
         } else {
-            this.view.setUint32(this._position, low);
-            this.view.setInt32(this._position + 4, high);
+            this.view.setBigInt64(this._position, bigIntValue, true);
         }
-        
         this._position += 8;
         return this;
     }
@@ -475,8 +466,8 @@ export class ByteBuffer {
         this._position += 8;
         return this;
     }
+
     putByteLengthString(str, encoding = 'utf-8') {
-        // Кодируем строку в байты
         const encoder = new TextEncoder();
         const bytes = encoder.encode(str);
         
@@ -484,10 +475,8 @@ export class ByteBuffer {
             throw new Error(`String too long: ${bytes.length} bytes exceeds maximum 255 for byte length prefix`);
         }
         
-        // Записываем длину (1 байт)
         this.putUByte(bytes.length);
         
-        // Записываем байты строки
         for (let i = 0; i < bytes.length; i++) {
             this.putUByte(bytes[i]);
         }
@@ -495,9 +484,7 @@ export class ByteBuffer {
         return this;
     }
 
-    // Запись строки с длиной в 2 байта
     putShortLengthString(str, encoding = 'utf-8') {
-        // Кодируем строку в байты
         const encoder = new TextEncoder();
         const bytes = encoder.encode(str);
         
@@ -505,10 +492,8 @@ export class ByteBuffer {
             throw new Error(`String too long: ${bytes.length} bytes exceeds maximum 65535 for short length prefix`);
         }
         
-        // Записываем длину (2 байта)
         this.putUShort(bytes.length);
         
-        // Записываем байты строки
         for (let i = 0; i < bytes.length; i++) {
             this.putUByte(bytes[i]);
         }
@@ -516,7 +501,6 @@ export class ByteBuffer {
         return this;
     }
 
-    // Запись по абсолютной позиции
     putByteAt(index, value) {
         if (index < 0 || index >= this._limit) {
             throw new Error('Index out of bounds');
@@ -557,7 +541,6 @@ export class ByteBuffer {
         return this;
     }
 
-
     putByteLengthStringAt(index, str, encoding = 'utf-8') {
         const oldPosition = this._position;
         try {
@@ -568,7 +551,6 @@ export class ByteBuffer {
         }
     }
 
-    // Запись строки с длиной в 2 байта по указанной позиции
     putShortLengthStringAt(index, str, encoding = 'utf-8') {
         const oldPosition = this._position;
         try {
@@ -579,11 +561,8 @@ export class ByteBuffer {
         }
     }
 
-
-    // Работа с массивом байт
     getBytes(dst, offset, length) {
         if (!dst) {
-            // Возвращаем новый массив с оставшимися байтами
             const remaining = this.remaining;
             const array = new Int8Array(remaining);
             for (let i = 0; i < remaining; i++) {
@@ -625,7 +604,6 @@ export class ByteBuffer {
         return this;
     }
 
-    // Преобразование в массив
     toInt8Array() {
         return new Int8Array(this.buffer, 0, this._limit);
     }
@@ -638,7 +616,6 @@ export class ByteBuffer {
         return this.buffer.slice(0, this._limit);
     }
 
-    // Дополнительные методы
     slice() {
         const sliced = new ByteBuffer(this.remaining);
         const oldPosition = this._position;
@@ -670,5 +647,13 @@ export class ByteBuffer {
         this._limit = this._capacity;
         this._markedPosition = -1;
         return this;
+    }
+
+    toHexString() {
+        // Берем только заполненную часть буфера (от 0 до _limit)
+        const bytes = new Uint8Array(this.buffer, 0, this._limit);
+        
+        // Преобразуем каждый байт в 2-символьную hex-строку и объединяем
+        return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
     }
 }

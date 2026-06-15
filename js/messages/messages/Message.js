@@ -1,6 +1,7 @@
 import { contentBlockFromBytes } from "../contentBlocks/ContentBlock.js";
 import { MessageType } from "./MessageType.js";
 import { getByteLengthStrSize, getShortLengthStrSize } from "../../utils/byteStringUtils.js";
+import { Hash } from "../../utils/Hash.js";
 
 export class Message {
     _channelId;
@@ -74,22 +75,12 @@ export class UserMessage extends Message {
 
     getCustomType() {return 0;}
 
-    json() {
-        return {
-            type: this.getType(),
-            timestamp: this.timestamp,
-            channelId: this.getChannelId(),
-            senderId: this.getSenderId(),
-            content: this.getContent().map(block => block.json())
-        };
-    }
-
     getAdditionByteLength() {
-        return getByteLengthStrSize(this.getSenderId());
+        return this.getSenderId().getByteSize();
     }
 
     putAdditionInto(buffer) {
-        buffer.putByteLengthString(this.getSenderId());
+        this.getSenderId().putInto(buffer);
     }
 }
 
@@ -111,7 +102,7 @@ export function messageFromBytes(buffer) {
 
     switch (type) {
         case 0: {
-            message = new UserMessage(channelId, timestamp, buffer.getByteLengthString());
+            message = new UserMessage(channelId, timestamp, new Hash(buffer));
         }
     }
 

@@ -7,6 +7,7 @@ export class SettingsManager {
     #guildSettings;
     #clientSettings;
 
+    // Remove TypeScript-only type annotations so this file is valid JavaScript
     constructor(core) {
         this.#core = core;
         this.#guildSettings = new GuildSettings(this);

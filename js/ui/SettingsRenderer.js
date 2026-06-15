@@ -87,21 +87,28 @@ export class SettingsRenderer {
         const newIcon = document.getElementById("settingsNewUserIconUrl");
         const newBanner = document.getElementById("settingsNewUserBannerUrl");
 
-        displayName.textContent = b64Decode(currentUserInfo.b64DisplayName);
-        description.textContent = b64Decode(currentUserInfo.b64Description);
-        icon.src = b64Decode(currentUserInfo.b64IconUrl);
-        banner.src = b64Decode(currentUserInfo.b64BannerUrl);
+        displayName.textContent = currentUserInfo.getDisplayName();
+        description.textContent = currentUserInfo.getDescription();
+        icon.src = currentUserInfo.getIconUrl();
+        banner.src = currentUserInfo.getBannerUrl();
 
-        newDisplayName.value = b64Decode(currentUserInfo.b64DisplayName);
-        newDescription.value = b64Decode(currentUserInfo.b64Description);
-        newIcon.value = b64Decode(currentUserInfo.b64IconUrl);
-        newBanner.value = b64Decode(currentUserInfo.b64BannerUrl);
+        newDisplayName.value = currentUserInfo.getDisplayName();
+        newDescription.value = currentUserInfo.getDescription();
+        newIcon.value = currentUserInfo.getIconUrl();
+        newBanner.value = currentUserInfo.getBannerUrl();
 
         document.getElementById("settingsUserCancelButton").onclick = (event)=>{
             this.#renderUserInfoSettings();
             event.stopImmediatePropagation();
         }
         document.getElementById("settingsUserSaveButton").onclick = ()=>{
+            currentUserInfo.update(
+                newDisplayName.value,
+                newDescription.value,
+                newIcon.value,
+                newBanner.value,
+                BigInt(Date.now())
+            );
             this.#renderUserInfoSettings();
             event.stopImmediatePropagation();
         }

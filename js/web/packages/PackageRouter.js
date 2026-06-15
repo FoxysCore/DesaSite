@@ -6,6 +6,9 @@ import { UserState } from "../../users/UserState.js"
 import { messageFromBytes } from "../../messages/messages/Message.js";
 import { MessageType } from "../../messages/messages/MessageType.js";
 
+import {ByteBuffer} from "../../utils/ByteBuffer.js"
+import { Hash } from "../../utils/Hash.js";
+
 export class PackageRouter {
     #guild;
 
@@ -61,11 +64,14 @@ export class PackageRouter {
 
 
     routeBytePackage(byteBuffer) {
-        const type = byteBuffer.getShort();
-        console.log(type);
+        const type = byteBuffer.getByte();
+        console.log("PackageType: ", type);
 
         switch (type) {
             case 0: {this.#routeServerInfoPkg(byteBuffer); break;}
+
+            case 2: {this.#routeErrorPackage(byteBuffer); break;}
+
             case 3: {this.#routeAuthMethodsPkg(byteBuffer); break;}
             case 4: {this.#routeAuthSuccessPkg(byteBuffer); break;}
 
@@ -76,6 +82,12 @@ export class PackageRouter {
             case 16: {this.#routeMessageSentPkg(byteBuffer); break;}
 
             case 18: {this.#routeMessageListPkg(byteBuffer); break;}
+
+            case 19: {this.#routeFileRequestPkg(byteBuffer); break;}
+
+            case 20: {this.#routeFileResponsePkg(byteBuffer); break;}
+
+            case 21: {this.#routeFileNotFoundPkg(byteBuffer); break;}
 
         }
 
@@ -90,18 +102,28 @@ export class PackageRouter {
 
 
     #routeAuthMethodsPkg(buffer) {
-        while (true) {
-            const methodName = buffer.getByteLengthString();
-            const payload = JSON.parse(buffer.getShortLengthString());
 
-            console.log(methodName, payload);
+        let size = buffer.getInt();
+
+        while (size > 0) {
+            size --;
+            const methodName = buffer.getByteLengthString();
+            console.log(methodName);
+
+            let serverPayloadSize = buffer.getInt();
+            const serverPayload = new ByteBuffer(serverPayloadSize);
+            while (serverPayloadSize > 0) {
+                serverPayload.put(buffer.get());
+                serverPayloadSize --;
+            }
+
+            serverPayload.flip();
 
             this.#guild.getAuthManager().addMethod(
                 methodName, 
-                payload
+                serverPayload
             );
             
-            if (buffer.limit === buffer.position) {break;}
         }
         const tokenMethod = this.#guild.getAuthManager().getMethod("defaultSessionTokenAuthMethod");
         console.log(tokenMethod);
@@ -110,7 +132,7 @@ export class PackageRouter {
 
 
     #routeAuthSuccessPkg(buffer) {
-        const userId = buffer.getByteLengthString();
+        const userId = new Hash(buffer);
         const sessionToken = buffer.getByteLengthString();
 
         this.#guild.getUserManager().setCurrentUser(userId);
@@ -154,7 +176,7 @@ export class PackageRouter {
             default: {state = UserState.DO_NOT_DISTURB; break;}
         }
 
-        const id = buffer.getByteLengthString();
+        const id = new Hash(buffer);
 
         const userManager = this.#guild.getUserManager();
 
@@ -194,5 +216,64 @@ export class PackageRouter {
                 );
             channel.reciveHistoryMessage(message);
         }
+    }
+
+    #routeFileRequestPkg(buffer) {
+
+        const hash = new Hash(buffer);
+        console.log(19, hash.toHexString());
+
+        const file = this
+                        .#guild
+                        .getGuildManager()
+                        .getCore()
+                        .getFileManager()
+                        .getQueuedFile(
+                            hash.toHexString()
+                        );
+        if (!file) {return;}
+
+        const url = buffer.getShortLengthString();
+
+        console.log(url);
+
+        const response = fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': file.type || 'application/octet-stream',
+            },
+            body: file,
+        });
+
+        console.log(response);
+    }
+
+    #routeErrorPackage(byteBuffer) {
+        console.log("ERR: scope: " + byteBuffer.getByteLengthString() + " desc: " + byteBuffer.getByteLengthString())
+    }
+
+
+    #routeFileResponsePkg(byteBuffer) {
+
+        const fileUrl = byteBuffer.getShortLengthString();
+
+        const a = document.createElement('a');
+        a.href = fileUrl;
+        a.download = ""; 
+        a.style.display = 'none';
+        
+        document.body.appendChild(a);
+        a.click();
+        
+        setTimeout(() => {
+            document.body.removeChild(a);
+        }, 100);
+    }
+
+    #routeFileNotFoundPkg(byteBuffer) {
+        const hash = new Hash(byteBuffer);
+        const fileName = byteBuffer.getByteLengthString();
+        
+        this.#guild.getGuildManager().getCore().getRenderer().getCenterMenuRenderer().openFileNotFound(fileName);
     }
 }

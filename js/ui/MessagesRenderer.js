@@ -1,6 +1,7 @@
 import { ContentBlockType } from "../messages/contentBlocks/ContentBlockType.js";
 import { UserMessage } from "../messages/messages/Message.js";
-import { TextContentBlock } from "../messages/contentBlocks/ContentBlock.js";
+import { FileContentBlock, TextContentBlock } from "../messages/contentBlocks/ContentBlock.js";
+import { Hash } from "../utils/Hash.js";
 
 export class MessagesRenderer {
     #renderer;
@@ -12,6 +13,8 @@ export class MessagesRenderer {
 
     #scrollEventLock = false;
 
+    #selectedFiles = new Array();
+
     constructor(renderer) {
         this.#renderer = renderer;
         this.#messagesArea = document.getElementById("messagesArea");
@@ -19,6 +22,8 @@ export class MessagesRenderer {
 
         const textArea = this.#messageInputContainer.querySelector("textarea");
         const sendBtn = this.#messageInputContainer.querySelector(".send-btn");
+        const attachBtn = document.getElementById("attachBtn");
+        const fileInput = document.getElementById("fileInput")
 
         textArea.addEventListener("keydown", (event) => {
             if (event.key === "Enter" && !event.shiftKey) {
@@ -38,13 +43,32 @@ export class MessagesRenderer {
                 message.addContentBlock(new TextContentBlock(content));
             }
 
-            if (message.getContent().length === 0) {
-                return;
+            const fileManager = this.#renderer.getCore().getFileManager();
+            for (const hash of fileManager.getRenderedFiles().keys()) {
+                const file = fileManager.getRenderedFiles().get(hash);
+                console.log(hash, file.name, file.size);
+                message.addContentBlock(new FileContentBlock(file.size, file.name, Hash.fromHexString(hash)));
             }
+            fileManager.onMessageSend();
 
             channel.sendMessage(message);
             textArea.value = "";
         });
+
+        attachBtn.addEventListener("click", () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener("change", async (event) => {
+            const file = event.target.files[0];
+            if (file == undefined) {return;}
+            sendBtn.disabled = true;
+            await this.#renderer.getCore().getFileManager().addFile(file);
+            sendBtn.disabled = false;
+        });
+
+
+
 
         this.#olderObserver = new IntersectionObserver((entries) => {
             for (const entry of entries) {
@@ -166,7 +190,7 @@ export class MessagesRenderer {
                 this.#messagesArea.firstChild.remove();
             }
 
-            // Ещё одно принудительное чтение
+            
             void this.#messagesArea.scrollTop;
 
             requestAnimationFrame(() => {
@@ -294,13 +318,13 @@ export class MessagesRenderer {
         displayContent.appendChild(messageAuthor);
 
         for (const block of message.getContent()) {
-            displayContent.appendChild(this.#createBlockDiv(block));
+            displayContent.appendChild(this.#createBlockDiv(block, channel));
         }
 
         return messageDiv;
     }
 
-    #createBlockDiv(contentBlock) {
+    #createBlockDiv(contentBlock, channel) {
         const blockDiv = document.createElement("div");
         blockDiv.className = `content-block ${contentBlock.getType()}`;
 
@@ -310,7 +334,38 @@ export class MessagesRenderer {
                 textBlock.textContent = contentBlock.getText();
                 blockDiv.appendChild(textBlock);
                 break;
-            // Здесь можно расширять другими типами блоков
+            
+            case ContentBlockType.FILE: {
+                const size = typeof contentBlock.getSize === 'function' ? contentBlock.getSize() : 0;
+                const i = size ? Math.floor(Math.log(size) / Math.log(1024)) : 0;
+                const sizeStr = size ? `${(size / Math.pow(1024, i)).toFixed(1)} ${['Б', 'КБ', 'МБ', 'ГБ'][i]}` : '';
+
+                blockDiv.innerHTML = `
+                    <div class="file-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="file-details">
+                        <div class="file-name"></div>
+                        ${sizeStr ? `<div class="file-size">${sizeStr}</div>` : ''}
+                    </div>
+                `;
+
+                blockDiv.querySelector('.file-name').textContent = contentBlock.getFileName();
+
+                blockDiv.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    channel
+                        .getRootCategory()
+                        .getGuild()
+                        .getConnection()
+                        .getPackageSender()
+                        .sendFileRequestPackage(channel.getId(), contentBlock.getHash(), contentBlock.getFileName());
+                });
+
+                break;
+            }
         }
 
         return blockDiv;

@@ -1,6 +1,10 @@
+import { ByteBuffer } from "../../utils/ByteBuffer.js";
 import { AuthMethod } from "./AuthMethod.js";
+import { getByteLengthStrSize } from "../../utils/byteStringUtils.js";
 
 export class SessionTokenAuthMethod extends AuthMethod{
+
+    
     
     getName() {
         return "defaultSessionTokenAuthMethod";
@@ -28,6 +32,16 @@ export class SessionTokenAuthMethod extends AuthMethod{
         const token = guildSettings.getGuildSessionToken(guild.getId());
 
         if (token != "") {
+
+            const clientPayload = new ByteBuffer(
+                userId.getByteSize() +
+                getByteLengthStrSize(token)               
+            );
+
+            clientPayload.putByteLengthString(token);
+            userId.putInto(clientPayload);
+            clientPayload.flip();
+
             this.getAuthManager().getGuild().getConnection().getPackageSender().sendAuthPackage(
                 this,
                 this
@@ -38,24 +52,8 @@ export class SessionTokenAuthMethod extends AuthMethod{
                     .getSettingsManager()
                     .getClientSettings()
                     .getUserInfo(),
-                {key: token, userId: userId}
-            )
-
-
-
-
-
-
-            
-            //guild.getConnection().sendPackage({
-            //    type: "AUTH",
-            //    authMethodName: "defaultSessionTokenAuthMethod",
-            //    userInfo: guildSettings.getSettingsManager().getClientSettings().getCurrentUserInfo(),
-            //    authData: {
-            //        key: token,
-            //        userId: userId
-            //    }
-            //});
+                clientPayload
+            );
         }
     }
 }

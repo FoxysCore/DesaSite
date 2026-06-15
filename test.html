@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>SHA-256 Локальный Хешер</title>
+    <script src="https://cdn.jsdelivr.net/npm/hash-wasm@4.11.0/dist/sha256.umd.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f9; color: #333; }
+        .container { max-width: 600px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        #progress-bar { width: 100%; background-color: #e0e0e0; height: 20px; border-radius: 10px; margin-top: 15px; display: none; overflow: hidden;}
+        #progress-fill { width: 0%; height: 100%; background-color: #4caf50; transition: width 0.1s; }
+        #result { margin-top: 15px; font-weight: bold; word-break: break-all; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Подсчет SHA-256 большого файла</h2>
+    <input type="file" id="file-input">
+    
+    <div id="progress-bar">
+        <div id="progress-fill"></div>
+    </div>
+    
+    <div id="result"></div>
+</div>
+
+<script>
+document.getElementById('file-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const resultDiv = document.getElementById('result');
+    const progressBar = document.getElementById('progress-bar');
+    const progressFill = document.getElementById('progress-fill');
+
+    resultDiv.innerText = "Расчет пошел...";
+    progressBar.style.display = 'block';
+    progressFill.style.width = '0%';
+
+    // Размер одного куска (чанка) - 10 МБ. Оптимально для баланса скорости и памяти.
+    const chunkSize = 10 * 1024 * 1024; 
+    const size = file.size;
+    let offset = 0;
+
+    // Инициализируем алгоритм SHA-256 в CryptoJS
+    const algo = CryptoJS.algo.SHA256.create();
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+        if (event.target.error) {
+            resultDiv.innerText = "Ошибка чтения файла: " + event.target.error;
+            return;
+        }
+
+        // Преобразуем прочитанный кусок (ArrayBuffer) в формат, понятный CryptoJS
+        const wordArray = CryptoJS.lib.WordArray.create(event.target.result);
+        
+        // Добавляем кусок в расчет хеша
+        algo.update(wordArray);
+
+        // Сдвигаем указатель и обновляем прогресс-бар
+        offset += event.target.result.byteLength;
+        const progress = ((offset / size) * 100).toFixed(1);
+        progressFill.style.width = progress + '%';
+
+        // Если файл не кончился, читаем следующий кусок
+        if (offset < size) {
+            readNextChunk();
+        } else {
+            // Файл прочитан полностью, выдаем финальный результат
+            const hash = algo.finalize();
+            resultDiv.innerHTML = `Готово!<br><span style="color: #2e7d32;">SHA-256: ${hash.toString(CryptoJS.enc.Hex)}</span>`;
+        }
+    };
+
+    function readNextChunk() {
+        const slice = file.slice(offset, offset + chunkSize);
+        reader.readAsArrayBuffer(slice);
+    }
+
+    // Запускаем первый цикл чтения
+    readNextChunk();
+});
+</script>
+
+</body>
+</html>
